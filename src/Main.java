@@ -3,9 +3,9 @@ import java.util.Arrays;
 public class Main {
     public static void main(String[] args) {
 
-        //left_encode(0);
-        //right_encode(0);
-        bytepad(encode_string(""),1);
+        String input = " ";
+        System.out.println(bytepad(input,input.length()));
+
     }
 //X encoded String, w integer to prepend with
     static String bytepad(String X, int w) {
@@ -98,7 +98,6 @@ public class Main {
     //Arrays.fill(enc, "");
     //StringBuilder fill = (base_two_five_six(Integer.toBinaryString(byteArray.length))).reverse();
     //enc[0] = String.valueOf(fill);
-
     private static String enc8(String byteT){
 
         StringBuilder reversedByte = new StringBuilder(byteT).reverse();
@@ -137,63 +136,4 @@ public class Main {
         }
         return sb;
     }
-
-    void keccak(){
-        // [1600,24]
-
-    }
-    /*
-    void keccak(){
-        // [1600,24]
-        Keccak-f[1600]
-    }
-    
-    void chi(){
-        for(int y = 0; y < 5; y++){
-            for(int x = 0; x < 5; x++){
-                A[x,y]=a[x,y]("XOR HERE")((!(a[x+1,y])&a[x+2,y]));
-            }
-        }
-
-    }
-
-    void theta(){
-        for (int x = 0; x < 5; x++) {
-            C[x]= a[x,0];
-            for (int y = 1; y < 5; y++) {
-                C[x] = C[x]("XOR HERE")a[x,y];
-            }
-        }
-        for (int x = 0; x < 5; x++) {
-            D[x] = C[x-1]("XOR HERE")(ROT(C[x+1],1);
-            for (int y = 0; y < 5; y++) {
-                A[x,y] = a[x,y]("XOR HERE")(D[x]);
-            }
-        }
-    }
-    void pi(){
-        for (int x = 0; x < 5; x++) {
-            for (int y = 1; y < 5; y++) {
-                //As a matrix
-                //( X ) = ( 0 1 )(x)
-                //( Y ) = ( 2 3 )(y)
-                A[X,Y] = a[x,y];
-            }
-        }
-    }
-
-//y ROT(a, d) a translation of a over d bits where bit in position z is mapped to position  z + d mod w
-
-
-    void phi(){
-        A[0,0] = a[0,0];
-        //(x)=(1)
-        //(y)=(0)
-        for (int t = 0; t < 23; t++) {
-            A[x,y] = ROT(a[x,y],(t+1)(t+2)/2);
-            //( x ) = ( 0 1 )(x)
-            //( y ) = ( 2 3 )(y)
-        }
-    }
-    */
 }
