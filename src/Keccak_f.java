@@ -30,24 +30,19 @@ public class Keccak_f {
 
     public Keccak_f(String bitString){
         int[][][] A = bitStringToMatrix(bitString);
-        //int[][][] B = roundFunction(24,A);
-        //System.out.println(A.equals(B));
         print(A);
-        System.out.println("\n---------------\n\n\n\n");
-        print(theta(A));
-        System.out.println("\n---------------\n\n\n\n");
-        print(rho(A));
-        System.out.println("\n---------------\n\n\n\n");
-        print(pi(A));
-        System.out.println("\n---------------\n\n\n\n");
-        print(chi(A));
-        System.out.println("\n---------------\n\n\n\n");
-        print(iota(A,2));
+        System.out.println("\n----------------------------------------" +
+                "-----------------------------------------------------" +
+                "-----------------------------------");
+        roundFunction(24,A);
+        print(A);
+        int[][][] B = Arrays.copyOf(A,A.length);
+        //System.out.println(B);
     }
 
     int[][][] roundFunction(int rounds, int[][][] A){
         for (int i = 0; i < rounds; i++) {
-            print(iota(chi(pi(rho(theta(A)))),i));
+            iota(chi(pi(rho(theta(A)))),i);
         }
         return A;
     }
@@ -64,18 +59,6 @@ public class Keccak_f {
                 }
             }
         }
-//        for (int y = 0; y < 5; y++) {
-//            System.out.println("");
-//            for (int x = 0; x < 5; x++) {
-//                System.out.println("");
-//                for (int z = 0; z < 64; z++) {
-//                    System.out.print(A[x][y][z]+",");
-//                }
-//            }
-//                //System.out.println("x:"+x+ "y:"+y+  Arrays.toString(A[x][y]));
-//
-//        }
-
         return A;
     }
 
@@ -191,7 +174,7 @@ public class Keccak_f {
         for (int j= 0; j < l; j++) {
             RC[(int) Math.pow(2.0,j)-1] = rc(j+7*r);
         }
-        System.out.print(Arrays.toString(RC));
+        //System.out.print(Arrays.toString(RC));
         for (int z = 0; z < 64; z++) {
             A[0][0][z] = A[0][0][z]^RC[z];
         }
@@ -204,16 +187,17 @@ public class Keccak_f {
         }
         StringBuilder R = new StringBuilder("10000000");
         for (int i = 1; i < (t % 255); i++) {
-            R.insert(0,R);
+            //R.insert(0,R);
+            R.insert(0,'0');
             R.replace(0,1,String.valueOf((int) R.charAt(0)^((int) R.charAt(8))));
             R.replace(4,5,String.valueOf((int) R.charAt(4)^((int) R.charAt(8))));
             R.replace(5,6,String.valueOf((int) R.charAt(5)^((int) R.charAt(8))));
             R.replace(6,7,String.valueOf((int) R.charAt(6)^((int) R.charAt(8))));
             R = new StringBuilder(truncate(R,8));
-            System.out.println(R);
+           // System.out.println(R);
         }
-        System.out.println(R.charAt(0));
-        return R.charAt(0);
+        //System.out.println(R.charAt(0));
+        return Integer.parseInt(RC[0]);
     }
     String truncate(StringBuilder s,int l) {
         return s.substring(0,l);
