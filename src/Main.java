@@ -2,9 +2,10 @@ import java.util.Arrays;
 
 public class Main {
     public static void main(String[] args) {
-
-        String input = " ";
-        System.out.println(bytepad(input,input.length()));
+        String bitString = "1111100010001101110011011111101000000011001010100001111010010111011001010100100011111101001110010000101000110110101011001101010110001111100010000000100010001000000001101010011010011011101110111100011111111000100000100101100111000101000000001111010101110001101000100000010000010010010101011101101011010010001111101100011100100110110000110101110001101001000000111111111110100010111111001011100101001001101001100000011101110111010110010001010110000011010011011111010100100000110000100101100110010011101111011010111100101101011110011101110011100001010110111000011111101110100000000100011100110100111010010100000100100001110100010001010110010100000111110100001000000001100101000011111011101011110100100111100101011010000100111010110001010100000011101010101010111001100101001100011100101101100001111111101011101100101001110011101101011000100010010001110010110101011101110110011100110011000100101000111010110111100101001001101101010101110001110100110000100110110111000010100110000010000111001100011010011100001010010110010010000110100110011100101010011010111111001011111011101100001101110110111000011010010011101101010111010101100111100111100111011010110111011101001110010011101110110000011111001000111010010011111100000111111110101101000110100011111011000111000100101110101011101001111011000011110101010100101011010000000100000110011110001010110001101000101010110111010100110110011110100100111110010101111000110100101110100011100101000111111100010011000111110010001110110111010000110011011001111001100100010100011100111010001110101011111100111111011110010110111111100111001110110101100011011001010100101001";
+         Keccak_f k = new Keccak_f(bitString);
+//        String input = " ";
+//        System.out.println(bytepad(input,input.length()));
 
     }
 //X encoded String, w integer to prepend with
@@ -42,15 +43,15 @@ public class Main {
         String binary = Integer.toBinaryString(X);
         //find n such that 2^(8n) > x, which gives the number of bytes to split into
         int n = find_n(X);
-        System.out.println(n);
+      //  System.out.println(n);
         // append extra zeros to the number if needed
         binary = base_two_five_six(binary).toString();
-        System.out.println(binary);
+      //  System.out.println(binary);
         String[] byteArray = new String[n];
         Arrays.fill(byteArray, "");
         // split it into k bytes/base 256
         k_bytes(binary, byteArray);
-        System.out.println(Arrays.toString(byteArray));
+      //  System.out.println(Arrays.toString(byteArray));
 
         String enc = "";
         StringBuilder fill = (base_two_five_six(Integer.toBinaryString(byteArray.length))).reverse();
@@ -61,7 +62,7 @@ public class Main {
         }
         enc += String.valueOf(fill);
 
-        System.out.println("Right encode:  "+enc);
+       // System.out.println("Right encode:  "+enc);
 
         return enc;
     }
@@ -71,16 +72,16 @@ public class Main {
         String binary = Integer.toBinaryString(X);
         //find n such that 2^(8n) > x, which gives the number of bytes to split into
         int n = find_n(X);
-        System.out.println(n);
+     //   System.out.println(n);
         // append extra zeros to the number if needed
         binary = base_two_five_six(binary).toString();
-        System.out.println(binary);
+      //  System.out.println(binary);
         String[] byteArray = new String[n];
         Arrays.fill(byteArray, "");
         // split it into k bytes/base 256
         k_bytes(binary, byteArray);
 
-        System.out.println(Arrays.toString(byteArray));
+      //  System.out.println(Arrays.toString(byteArray));
         String enc = "";
         StringBuilder fill = (base_two_five_six(Integer.toBinaryString(byteArray.length))).reverse();
         enc += String.valueOf(fill);
@@ -90,7 +91,7 @@ public class Main {
             enc += String.valueOf(t);
         }
 
-        System.out.println("Left encode:  "+enc);
+   //     System.out.println("Left encode:  "+enc);
 
         return enc;
     }
