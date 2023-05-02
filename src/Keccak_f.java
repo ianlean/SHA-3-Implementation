@@ -1,7 +1,11 @@
+import java.lang.constant.Constable;
 import java.util.Arrays;
 //rc The function that generates the variable bits of the round constants.
 //RC For a round of a KECCAK-p permutation, the round constant.
 public class Keccak_f {
+    public int[] rhoStep = {21,136,105,45,15,120,78,210,66,253,28,91,0,1,190,55,276,36,300,6,153,231,3,10,171};
+
+
     void print(int[][][] A){
         for (int y = 0; y < 5; y++) {
             System.out.println("");
@@ -13,6 +17,9 @@ public class Keccak_f {
             }
         }
     }
+
+
+
     final String[] RC = {
             "0000000000000001", "0000000000008082", "800000000000808a",
             "8000000080008000", "000000000000808b", "0000000080000001",
@@ -30,7 +37,7 @@ public class Keccak_f {
 
     public Keccak_f(String bitString){
         int[][][] A = bitStringToMatrix(bitString);
-        print(A);
+       // print(A);
         System.out.println("\n----------------------------------------" +
                 "-----------------------------------------------------" +
                 "-----------------------------------");
@@ -41,9 +48,19 @@ public class Keccak_f {
     }
 
     int[][][] roundFunction(int rounds, int[][][] A){
+        print(A);
+        System.out.println("\n----------------------------------------" +
+                "-----------------------------------------------------" +
+                "-----------------------------------");
         for (int i = 0; i < rounds; i++) {
-            iota(chi(pi(rho(theta(A)))),i);
+           // iota(chi(pi(rho(theta(A)))),i);
+           A = iota(chi(pi(rho(theta(A)))),i);
+          
+//System.out.println("\n A above B below -------------------------------------------------------------\n");
+           //print(B);
+           //System.out.println(Arrays.deepEquals(B,A));
         }
+       // print(A);
         return A;
     }
 
@@ -86,29 +103,35 @@ public class Keccak_f {
 
 
 
-    int[][][] theta(int[][][] A){
-
-
+    int[][][] theta(int[][][] a){
+        int[][][] A = new int[5][5][64];
+        A = a;
+      
+        //System.out.println("\n\nStarting form above--------------------------------------------------------------------------------------\n");
         int[][] C = new int[5][64], D= new int[5][64];
         for (int x = 0; x < 5; x++) {
-            C[x] = A[x][0];
+            C[x] = a[x][0];
       //      System.out.println(Arrays.toString(C[x]));
             for (int y = 1; y < 5; y++) {
 //                C[x] = C[x]("XOR HERE")A[x][y];
-                C[x] = XOR(C[x],A[x][y]);
+                C[x] = XOR(C[x],a[x][y]);
             }
         }
         for (int x = 0; x < 5; x++) {
             D[x] =  XOR(C[(x-1+5)%5],(ROT(C[(x+1)%5],1)));
             for (int y = 0; y < 5; y++) {
-                A[x][y] = XOR(A[x][y],D[x]);
+                A[x][y] = XOR(a[x][y],D[x]);
             }
         }
+        //print(A);
+        //System.out.println("\n\nEndTheta--------------------------------------------------------------------------------------\n");
 
         return A;
     }
 
     int[][][] rho(int[][][] a){
+       // print(a);
+        //System.out.println("Starting above new below \n");
         int[][][] A = new int[5][5][64];
         for (int z = 0; z < 64; z++) {
             A[0][0][z] = a[0][0][z];
@@ -119,7 +142,7 @@ public class Keccak_f {
 
         for (int t = 0; t < 23; t++) {
             for (int z = 0; z < 64; z++) {
-                A[cord[0]][cord[1]][z] = a[cord[0]][cord[1]][((((t+1)*(t+2)/2)%64))];
+                A[cord[0]][cord[1]][z] = a[cord[0]][cord[1]][(z+rhoStep[cord[0]+cord[1]])%64];
             }
 
             int x = cord[0];
@@ -127,23 +150,33 @@ public class Keccak_f {
             cord[0] = y;
             cord[1] = (2*x+3*y)%5;
         }
+        //print(A);
+        //System.out.println("\n\nEndRho--------------------------------------------------------------------------------------\n");
 
         return A;
     }
 
     int[][][] pi(int[][][] a){
+        //print(a);
+        //System.out.println("\n\nStarting above ending below--------------------------------------------------------------------------------------\n");
+
         int[][][] A = new int[5][5][64];
+        //A = a;
         for (int z = 0; z < 64; z++) {
             for (int x = 0; x < 5; x++) {
-                for (int y = 1; y < 5; y++) {
+                for (int y = 0; y < 5; y++) {
                     A[x][y][z] = a[(x+3*y)%5][x][z];
                 }
             }
         }
+        //print(A);
         return A;
     }
 
     int[][][] chi(int[][][] a){
+        //print(a);
+        //System.out.println("\n\nStarting above ending below--------------------------------------------------------------------------------------\n");
+
         int[][][] A = new int[5][5][64];
         for (int z = 0; z < 64; z++) {
             for (int y = 0; y < 5; y++) {
@@ -152,6 +185,9 @@ public class Keccak_f {
                 }
             }
         }
+        
+        //print(A);
+        //System.out.println("\n\n---------------------------------------------\n\n");
         return A;
     }
 //1. For all triples (x, y,z) such that 0≤x<5, 0≤y<5, and 0≤z<w, let A′[x, y,z] = A[x, y,z].
@@ -161,14 +197,20 @@ public class Keccak_f {
 //4. For all z such that 0≤z<w, let A′[0, 0,z]=A′[0, 0,z] ⊕ RC[z].
 //5. Return A′.
     int[][][] iota(int[][][]a ,int r){
+        //System.out.println("\n\nIOTA--------------------------------------------------------------------------------------\n");
+
+        //print(a);
+        //System.out.println("\n\nStarting above ending below--------------------------------------------------------------------------------------\n");
+
         int[][][] A = new int[5][5][64];
-        for (int z = 0; z < 64; z++) {
-            for (int y = 0; y < 5; y++) {
-                for (int x = 0; x < 5; x++) {
-                    A[x][y][z]= a[x][y][z];
-                }
-            }
-        }
+        // for (int z = 0; z < 64; z++) {
+        //     for (int y = 0; y < 5; y++) {
+        //         for (int x = 0; x < 5; x++) {
+        //             A[x][y][z]= a[x][y][z];
+        //         }
+        //     }
+        // }
+        A = a;
         int[] RC = new int[64];
         int l = 6;
         for (int j= 0; j < l; j++) {
@@ -176,8 +218,10 @@ public class Keccak_f {
         }
         //System.out.print(Arrays.toString(RC));
         for (int z = 0; z < 64; z++) {
-            A[0][0][z] = A[0][0][z]^RC[z];
+            A[0][0][z] = (a[0][0][z])^(RC[z]);
         }
+        //print(A);
+        //System.out.println("\n\n---------------------------------------------\n\n");
         return A;
     }
 
