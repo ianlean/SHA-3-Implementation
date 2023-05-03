@@ -43,16 +43,6 @@ public class Keccak_f {
     // Save the prev state to apply on current for sponge
      public Keccak_f(){
         initState();
-    //     prevR = bitString;
-    //     //int[][][] A = bitStringToMatrix(bitString);
-    //    // print(A);
-    //     //System.out.println("\n----------------------------------------" +
-    //            // "-----------------------------------------------------" +
-    //            // "-----------------------------------");
-    //     //roundFunction(24,A);
-    //     //print(A);
-    //     //int[][][] B = Arrays.copyOf(A,A.length);
-    //     //System.out.println(B);
      }
 
     // Sponge Requirements -> f,pad,r
