@@ -1,24 +1,8 @@
-import java.lang.constant.Constable;
 import java.util.Arrays;
 //rc The function that generates the variable bits of the round constants.
 //RC For a round of a KECCAK-p permutation, the round constant.
 public class Keccak_f {
-    public int[] rhoStep = {21,136,105,45,15,120,78,210,66,253,28,91,0,1,190,55,276,36,300,6,153,231,3,10,171};
-
-
-    void print(int[][][] A){
-        for (int y = 0; y < 5; y++) {
-            System.out.println("");
-            for (int x = 0; x < 5; x++) {
-                System.out.println("");
-                for (int z = 0; z < 64; z++) {
-                    System.out.print(A[x][y][z]+",");
-                }
-            }
-        }
-    }
-
-
+    final int[] rhoStep = {21,136,105,45,15,120,78,210,66,253,28,91,0,1,190,55,276,36,300,6,153,231,3,10,171};
 
     final String[] RC = {
             "0000000000000001", "0000000000008082", "800000000000808a",
@@ -35,73 +19,95 @@ public class Keccak_f {
         0, 1,  3,  6,  10, 15, 21, 28, 36, 45, 55, 2,  14, 27, 41, 56, 8,  25, 43, 62, 18, 39, 61, 20, 44
     };
 
-    public Keccak_f(String bitString){
+
+    void print(int[][][] A){
+        for (int y = 0; y < 5; y++) {
+            System.out.println("");
+            for (int x = 0; x < 5; x++) {
+                System.out.println("");
+                for (int z = 0; z < 64; z++) {
+                    System.out.print(A[x][y][z]+",");
+                }
+            }
+        }
+    }
+
+  
+    void initState(){
+        for (int i = 0; i < (r+c); i++) {
+            currState += "0";            
+        }
+
+    }
+    // Each pass is size r = 1024 and c=576
+    // Save the prev state to apply on current for sponge
+     public Keccak_f(){
+        initState();
+    //     prevR = bitString;
+    //     //int[][][] A = bitStringToMatrix(bitString);
+    //    // print(A);
+    //     //System.out.println("\n----------------------------------------" +
+    //            // "-----------------------------------------------------" +
+    //            // "-----------------------------------");
+    //     //roundFunction(24,A);
+    //     //print(A);
+    //     //int[][][] B = Arrays.copyOf(A,A.length);
+    //     //System.out.println(B);
+     }
+
+    // Sponge Requirements -> f,pad,r
+    // Input: N= a bit string and d= bitlength
+    //String prevState = "";
+    String currState = "";
+    int r = 1024;
+    int c = 576;
+    public String Sponge(String message , int d){
+        // Absorb
+        while(message.length() > 0){
+            //XOR currState against message block size 1024
+            currState.replace(currState.substring(0,r),XOR(currState.substring(0, r).toCharArray(), message.substring(0, r).toCharArray()).toString());
+            message = message.substring(r);
+            //Run state through keccak-f
+            currState = f(currState);
+            //xor message against r
+        }
+
+        // Sequeeze
+        String z = "";
+        while(z.length() >= d){
+            z += truncate(new StringBuilder(currState),r);
+            if(d <= z.length()){
+                return truncate(new StringBuilder(z), d);
+            }
+            currState = f(currState);
+
+        }
+        return z;
+
+    }
+    public String f(String bitString){
         int[][][] A = bitStringToMatrix(bitString);
+        int[][][] B = new int[5][5][64];
        // print(A);
-        System.out.println("\n----------------------------------------" +
-                "-----------------------------------------------------" +
-                "-----------------------------------");
-        roundFunction(24,A);
-        print(A);
-        int[][][] B = Arrays.copyOf(A,A.length);
-        //System.out.println(B);
+        System.out.println("\n--------------------------------------------------------------------------------------------------------------------------------");
+        B = roundFunction(24,A);
+        return matrixToBitString(B);
     }
 
     int[][][] roundFunction(int rounds, int[][][] A){
         print(A);
-        System.out.println("\n----------------------------------------" +
-                "-----------------------------------------------------" +
-                "-----------------------------------");
+        System.out.println("\n--------------------------------------------------------------------------------------------------------------------------------");
+
         for (int i = 0; i < rounds; i++) {
-           // iota(chi(pi(rho(theta(A)))),i);
            A = iota(chi(pi(rho(theta(A)))),i);
-          
-//System.out.println("\n A above B below -------------------------------------------------------------\n");
-           //print(B);
-           //System.out.println(Arrays.deepEquals(B,A));
+        
+           //System.out.println("\n A above B below -------------------------------------------------------------\n");
         }
-       // print(A);
+        String temp = matrixToBitString(A);
+        System.out.println(temp);
+        System.out.println(temp.length());
         return A;
     }
-
-    int[][][] bitStringToMatrix(String bitString){
-        //System.out.println(bitString.length());
-        int[][][] A = new int[5][5][64];
-        int count = 0;
-        for (int y = 0; y < 5; y++) {
-            for (int x = 0; x < 5; x++) {
-                for (int z = 0; z < 64; z++) {
-                    A[x][y][z] = Integer.parseInt(String.valueOf(bitString.charAt(count)));
-                    count++;
-                }
-            }
-        }
-        return A;
-    }
-
-    int[][][] keccak(int[][][] A){
-        int b = 1600;
-        int n = 25;
-        // [1600,24]
-        for (int i = 0; i < n-1; i++){
-            A = Round(A, toHex(RC[i]));
-        }
-        return A;
-    }
-
-    int toHex(String hex) {
-        return Integer.parseInt(hex,16);
-    }
-
-    int[][][] Round(int[][][] A, int ir){
-
-
-        return A;
-    }
-
-
-
-
 
     int[][][] theta(int[][][] a){
         int[][][] A = new int[5][5][64];
@@ -190,12 +196,7 @@ public class Keccak_f {
         //System.out.println("\n\n---------------------------------------------\n\n");
         return A;
     }
-//1. For all triples (x, y,z) such that 0≤x<5, 0≤y<5, and 0≤z<w, let A′[x, y,z] = A[x, y,z].
-//2. Let RC=O^w capital o not zero
-//3. For j from 0 to l, let RC[2j
-//–1]=rc(j+7ir).
-//4. For all z such that 0≤z<w, let A′[0, 0,z]=A′[0, 0,z] ⊕ RC[z].
-//5. Return A′.
+
     int[][][] iota(int[][][]a ,int r){
         //System.out.println("\n\nIOTA--------------------------------------------------------------------------------------\n");
 
@@ -203,14 +204,8 @@ public class Keccak_f {
         //System.out.println("\n\nStarting above ending below--------------------------------------------------------------------------------------\n");
 
         int[][][] A = new int[5][5][64];
-        // for (int z = 0; z < 64; z++) {
-        //     for (int y = 0; y < 5; y++) {
-        //         for (int x = 0; x < 5; x++) {
-        //             A[x][y][z]= a[x][y][z];
-        //         }
-        //     }
-        // }
         A = a;
+
         int[] RC = new int[64];
         int l = 6;
         for (int j= 0; j < l; j++) {
@@ -223,6 +218,37 @@ public class Keccak_f {
         //print(A);
         //System.out.println("\n\n---------------------------------------------\n\n");
         return A;
+    }
+
+    int[][][] bitStringToMatrix(String bitString){
+        //System.out.println(bitString.length());
+        int[][][] A = new int[5][5][64];
+        int count = 0;
+        for (int y = 0; y < 5; y++) {
+            for (int x = 0; x < 5; x++) {
+                for (int z = 0; z < 64; z++) {
+                    A[x][y][z] = Integer.parseInt(String.valueOf(bitString.charAt(count)));
+                    count++;
+                }
+            }
+        }
+        return A;
+    }
+
+    String matrixToBitString(int[][][] A){
+        String bitString = "";
+        for (int y = 0; y < 5; y++) {
+            for (int x = 0; x < 5; x++) {
+                for (int z = 0; z < 64; z++) {
+                    bitString += Integer.toString(A[x][y][z]);
+                }
+            }
+        }
+        return bitString;
+    }
+
+    int toHex(String hex) {
+        return Integer.parseInt(hex,16);
     }
 
     int rc(int t){
@@ -261,7 +287,19 @@ public class Keccak_f {
         }
         return c;
     }
-
+    char[] XOR(char[] a, char[] b){
+        int i = 0;
+        char[] c = new char[a.length];
+        for (char z : a) {
+            if(z == b[i]){
+                c[i] = '0';
+            }else{
+                c[i] = '1';
+            }
+            
+        }
+        return c;
+    }
 
 
 
