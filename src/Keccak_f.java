@@ -45,6 +45,14 @@ public class Keccak_f {
         initState();
      }
 
+     String pad101(int x, int m){
+        String pad = "1";
+        while( (pad.length()+1+m)%x != 0){
+            pad +="0";
+        }
+        pad += "1";
+        return pad;
+    }
     // Sponge Requirements -> f,pad,r
     // Input: N= a bit string and d= bitlength
     //String prevState = "";
@@ -52,6 +60,9 @@ public class Keccak_f {
     int r = 1024;
     int c = 576;
     public String Sponge(String message , int d){
+        if(message.length() % r != 0) {
+            message += pad101(r,message.length());
+        }
         // Absorb
         while(message.length() > 0){
             //XOR currState against message block size 1024
@@ -62,18 +73,29 @@ public class Keccak_f {
             //xor message against r
         }
 
-        // Sequeeze
+        // Squeeze
+        //7. Let Z be the empty string.
+        //8. Let Z=Z || Trunc_r(S).
+        //9. If d≤|Z|, then return Trunc d (Z); else continue.
+        //10. Let S=f(S), and continue with Step 8.
         String z = "";
-        while(z.length() >= d){
-            z += truncate(new StringBuilder(currState),r);
-            if(d <= z.length()){
-                return truncate(new StringBuilder(z), d);
+        z = z+truncate(new StringBuilder(currState),r);
+        if(d <= z.length()){
+            System.out.println(truncate(new StringBuilder(z), d));
+            return truncate(new StringBuilder(z), d);
+
+        }else {
+            while (z.length() <= d) {
+                z += truncate(new StringBuilder(currState), r);
+                if(d <= z.length()){
+                    return truncate(new StringBuilder(z), d);
+                }
+                currState = f(currState);
             }
-            currState = f(currState);
+            System.out.println(z);
 
+            return z;
         }
-        return z;
-
     }
     public String f(String bitString){
         int[][][] A = bitStringToMatrix(bitString);
@@ -93,9 +115,9 @@ public class Keccak_f {
         
            //System.out.println("\n A above B below -------------------------------------------------------------\n");
         }
-        String temp = matrixToBitString(A);
-        System.out.println(temp);
-        System.out.println(temp.length());
+       // String temp = matrixToBitString(A);
+       // System.out.println(temp);
+       // System.out.println(temp.length());
         return A;
     }
 
@@ -260,6 +282,7 @@ public class Keccak_f {
         return Integer.parseInt(RC[0]);
     }
     String truncate(StringBuilder s,int l) {
+        //System.out.println(s.substring(0,l));
         return s.substring(0,l);
     }
 
