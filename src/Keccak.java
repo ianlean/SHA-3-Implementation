@@ -1,6 +1,6 @@
 public class Keccak {
     /*Round functions*/
-    void sha3_keccakf(long[] st) {
+    long[] sha3_keccakf(long[] st) {
 
 
         final long[] RC = {
@@ -94,6 +94,7 @@ public class Keccak {
             v[7] = (byte) ((t >> 56) & 0xFF);
         }
 
+        return st;
     }
 
     long ROTL64(long x, long y) {

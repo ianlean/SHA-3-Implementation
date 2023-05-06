@@ -6,13 +6,21 @@ class Main{
     public static void main(String[] args){
         String bitString = utils.keccakInput("","Email Signature",136);
 
+        String h1 = "194CCD058B2A83D60229DC6984D14F158B694FA4BD";
+        String h2 = "000102030400";
+
+        System.out.println(bitString.length());
+        //System.out.println("XOR "+utils.XORhex(h1, h2));
+
         long[] l = utils.hexToLong(bitString);
         System.out.println(Arrays.toString(l));
 
-        keccak.sha3_keccakf(l);
-        System.out.println(utils.longToHex(l));
+        l = keccak.sha3_keccakf(l);
         System.out.println(Arrays.toString(l));
-    }
+        utils.printHex(utils.longToHex(l));
+    //     System.out.println(utils.longToHex(l));
+    //     System.out.println(Arrays.toString(l));
+     }
 
 
 
