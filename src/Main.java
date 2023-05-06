@@ -1,179 +1,110 @@
 import java.util.Arrays;
 
-public class Main {
-    public static void main(String[] args) {
-        //System.out.println("b9a5dc0048db9a7d13548781df3cd4b2334606391f75f40c14225a92f4cb3537".length());
-      
-        String bitString = "1111100010001101110011011111101000000011001010100001111010010111011001010100100011111101001110010000101000110110101011001101010110001111100010000000100010001000000001101010011010011011101110111100011111111000100000100101100111000101000000001111010101110001101000100000010000010010010101011101101011010010001111101100011100100110110000110101110001101001000000111111111110100010111111001011100101001001101001100000011101110111010110010001010110000011010011011111010100100000110000100101100110010011101111011010111100101101011110011101110011100001010110111000011111101110100000000100011100110100111010010100000100100001110100010001010110010100000111110100001000000001100101000011111011101011110100100111100101011010000100111010110001010100000011101010101010111001100101001100011100101101100001111111101011101100101001110011101101011000100010010001110010110101011101110110011100110011000100101000111010110111100101001001101101010101110001110100110000100110110111000010100110000010000111001100011010011100001010010110010010000110100110011100101010011010111111001011111011101100001101110110111000011010010011101101010111010101100111100111100111011010110111011101001110010011101110110000011111001000111010010011111100000111111110101101000110100011111011000111000100101110101011101001111011000011110101010100101011010000000100000110011110001010110001101000101010110111010100110110011110100100111110010101111000110100101110100011100101000111111100010011000111110010001110110111010000110011011001111001100100010100011100111010001110101011111100111111011110010110111111100111001110110101100011011001010100101001";
-        String test = "";
-        test= toBitString(test);
-        //System.out.println((bytepad(test,136)+test+"00").length());
+class Main{
+    final static Utils utils = new Utils();
+    final static Keccak keccak = new Keccak();
+    public static void main(String[] args){
+        String bitString = utils.keccakInput("","Email Signature",136);
 
-        String hash = KMACXOF256("",test,256,"");
-        System.out.println(fromBits(hash));
-        //7b86048cd71faecb0000000000000000ffffffffffffffff000000000000000000000000000000000000000000000000802410ac12400030080089008100000c
-    }
+        long[] l = utils.hexToLong(bitString);
+        System.out.println(Arrays.toString(l));
 
-    static String KMACXOF256(String K, String X, int L, String S) {
-        String newX = bytepad(encode_string(K), 136) + X + right_encode(0);
-        return cShake(newX,L,"KMAC",S);
-    }
-
-    //X -- Main input bit string
-    //L -- Integer representing the requested output length
-    //N -- Function name bitstring
-    //S -- Customization bit string
-    static String cShake(String X, int L, String N, String S) {
-        Keccak_f keccak= new Keccak_f();
-
-        return keccak.Sponge(bytepad((encode_string(N)+encode_string(S)),136)+X+"00",L);
-    }
-    static String fromBits(String bitString){
-        String temp="";
-        while((bitString.length()-4)>=0){
-            int decimal = Integer.parseInt(bitString.substring(0,4),2);
-            String hexStr = Integer.toString(decimal,16);
-            temp += hexStr;
-            bitString=bitString.substring(4);
-
-        }
-        return temp;
-    }
-    static String toBitString(String text){
-        String bitString = "";
-        for (char a: text.toCharArray()) {
-            bitString += base_two_five_six(Integer.toBinaryString(a));
-        }
-        return bitString;
-    }
-
-//X encoded String, w integer to prepend with
-    static String bytepad(String X, int w) {
-        String z = "";
-// Validity Conditions: w > 0
-        if(w > 0){
-// 1. z = left_encode(w) || X.
-            z = left_encode(w)+X;
-//2. while len(z) mod 8 ≠ 0:
-//          z = z || 0
-            while (z.length() % 8 != 0){
-                z += "0";
-            }
-//3. while (len(z)/8) mod w ≠ 0:
-//          z = z || 00000000
-            while ((z.length()/8) % w != 0){
-                z += "00000000";
-            }
-        }
-        //System.out.println(z);
-        return z;
+        keccak.sha3_keccakf(l);
+        System.out.println(utils.longToHex(l));
+        System.out.println(Arrays.toString(l));
     }
 
 
-    static String encode_string(String input){
-        if (input.length() < 22040){
-            return left_encode(input.length()) + input;
-        }
-        return "";
-    }
 
-    static String right_encode(int X){
-        // find binary representation of x
-        String binary = Integer.toBinaryString(X);
-        //find n such that 2^(8n) > x, which gives the number of bytes to split into
-        int n = find_n(X);
-      //  System.out.println(n);
-        // append extra zeros to the number if needed
-        binary = base_two_five_six(binary).toString();
-      //  System.out.println(binary);
-        String[] byteArray = new String[n];
-        Arrays.fill(byteArray, "");
-        // split it into k bytes/base 256
-        k_bytes(binary, byteArray);
-      //  System.out.println(Arrays.toString(byteArray));
 
-        String enc = "";
-        StringBuilder fill = (base_two_five_six(Integer.toBinaryString(byteArray.length))).reverse();
-
-        for (String s:byteArray){
-            StringBuilder t = new StringBuilder(s).reverse();
-            enc += String.valueOf(t);
-        }
-        enc += String.valueOf(fill);
-
-       // System.out.println("Right encode:  "+enc);
-
-        return enc;
-    }
-// 0
-    static String left_encode(int X){
-        // find binary representation of x
-        String binary = Integer.toBinaryString(X);
-        //find n such that 2^(8n) > x, which gives the number of bytes to split into
-        int n = find_n(X);
-     //   System.out.println(n);
-        // append extra zeros to the number if needed
-        binary = base_two_five_six(binary).toString();
-      //  System.out.println(binary);
-        String[] byteArray = new String[n];
-        Arrays.fill(byteArray, "");
-        // split it into k bytes/base 256
-        k_bytes(binary, byteArray);
-
-      //  System.out.println(Arrays.toString(byteArray));
-        String enc = "";
-        StringBuilder fill = (base_two_five_six(Integer.toBinaryString(byteArray.length))).reverse();
-        enc += String.valueOf(fill);
-
-        for (String s:byteArray){
-            StringBuilder t = new StringBuilder(s).reverse();
-            enc += String.valueOf(t);
-        }
-
-   //     System.out.println("Left encode:  "+enc);
-
-        return enc;
-    }
-    //String[] enc = new String[byteArray.length+1];
-    //Arrays.fill(enc, "");
-    //StringBuilder fill = (base_two_five_six(Integer.toBinaryString(byteArray.length))).reverse();
-    //enc[0] = String.valueOf(fill);
-    private static String enc8(String byteT){
-
-        StringBuilder reversedByte = new StringBuilder(byteT).reverse();
-        return String.valueOf(reversedByte);
-    }
-
-    private static String[] k_bytes(String binary,String[] byteArray) {
-        int index = 0;
-        int counter = 0;
-        for (int i = 0; i < binary.length(); i++) {
-            byteArray[index] += binary.charAt(i);
-            counter++;
-            if (counter == 8) {
-                index++;
-                counter = 0;
-            }
-        }
-        return byteArray;
-    }
-    private static int find_n(int x) {
-        int base = 256;
-        int n = 1;
-        while(Math.pow(base,n) < x) {
-            n++;
-        }
-        return n;
-    }
-
-    private static StringBuilder base_two_five_six(String s) {
-        StringBuilder sb = new StringBuilder(s);
-
-        while (sb.length()%8 != 0) {
-            //System.out.println("hi");
-            //System.out.println(sb);
-            sb.insert(0,'0');
-        }
-        return sb;
-    }
 }
+/*// Initialize the context for SHA3
+
+int sha3_init(sha3_ctx_t *c, int mdlen)
+{
+    int i;
+
+    for (i = 0; i < 25; i++)
+        c->st.q[i] = 0;
+    c->mdlen = mdlen;
+    c->rsiz = 200 - 2 * mdlen;
+    c->pt = 0;
+
+    return 1;
+}
+
+// update state with more data
+
+int sha3_update(sha3_ctx_t *c, const void *data, size_t len)
+{
+    size_t i;
+    int j;
+
+    j = c->pt;
+    for (i = 0; i < len; i++) {
+        c->st.b[j++] ^= ((const uint8_t *) data)[i];
+        if (j >= c->rsiz) {
+            sha3_keccakf(c->st.q);
+            j = 0;
+        }
+    }
+    c->pt = j;
+
+    return 1;
+}
+
+// finalize and output a hash
+
+int sha3_final(void *md, sha3_ctx_t *c)
+{
+    int i;
+
+    c->st.b[c->pt] ^= 0x06;
+    c->st.b[c->rsiz - 1] ^= 0x80;
+    sha3_keccakf(c->st.q);
+
+    for (i = 0; i < c->mdlen; i++) {
+        ((uint8_t *) md)[i] = c->st.b[i];
+    }
+
+    return 1;
+}
+
+// compute a SHA-3 hash (md) of given byte length from "in"
+
+void *sha3(const void *in, size_t inlen, void *md, int mdlen)
+{
+    sha3_ctx_t sha3;
+
+    sha3_init(&sha3, mdlen);
+    sha3_update(&sha3, in, inlen);
+    sha3_final(md, &sha3);
+
+    return md;
+}
+
+// SHAKE128 and SHAKE256 extensible-output functionality
+
+void shake_xof(sha3_ctx_t *c)
+{
+    c->st.b[c->pt] ^= 0x1F;
+    c->st.b[c->rsiz - 1] ^= 0x80;
+    sha3_keccakf(c->st.q);
+    c->pt = 0;
+}
+
+void shake_out(sha3_ctx_t *c, void *out, size_t len)
+{
+    size_t i;
+    int j;
+
+    j = c->pt;
+    for (i = 0; i < len; i++) {
+        if (j >= c->rsiz) {
+            sha3_keccakf(c->st.q);
+            j = 0;
+        }
+        ((uint8_t *) out)[i] = c->st.b[j++];
+    }
+    c->pt = j;
+} */
