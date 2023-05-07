@@ -1,5 +1,9 @@
+import java.util.Arrays;
+
 public class Keccak {
     /*Round functions*/
+    static Utils u = new Utils();
+
     long[] sha3_keccakf(long[] st) {
 
 
@@ -33,7 +37,7 @@ public class Keccak {
         //#if __BYTE_ORDER__ != __ORDER_LITTLE_ENDIAN__
         byte[] v;
 
-       // endianess conversion. this is redundant on little-endian targets
+        //endianess conversion. this is redundant on little-endian targets
         for (i = 0; i < 25; i++) {
             v = longToBytes(st[i]);
             st[i] = ((long)v[0]) | (((long)v[1]) << 8) |
@@ -79,7 +83,7 @@ public class Keccak {
             //  Iota
             st[0] ^= RC[r];
         }
-        //#if __BYTE_ORDER__ != __ORDER_LITTLE_ENDIAN__
+       // #if __BYTE_ORDER__ != __ORDER_LITTLE_ENDIAN__
         //endianess conversion. this is redundant on little-endian targets
         for (i = 0; i < 25; i++) {
             v = longToBytes(st[i]);
@@ -104,10 +108,13 @@ public class Keccak {
     }
     byte[] longToBytes(long l) {
         byte[] result = new byte[Long.BYTES];
+        String temp = "";
         for (int i = 0; i < result.length; i++) {
             result[result.length - i - 1] = (byte) (l & 0xFF);
             l >>= 8;
         }
+        
+        System.out.println(Arrays.toString(result));
         return result;
     }
     public static long bytesToLong(final byte[] B) {
@@ -115,6 +122,8 @@ public class Keccak {
         for (byte b : B) {
             result = (result << 8) + (b & 0xFF);
         }
+        String temp = (Long.toHexString(result));
+        System.out.println(temp);
         return result;
     }
 }

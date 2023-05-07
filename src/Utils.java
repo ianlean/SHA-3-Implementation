@@ -23,6 +23,7 @@ public class Utils {
 
         for (int i = 0; i*16 < hex.length(); i++) {
             L[i] = new BigInteger(hex.substring(i*16, i*16+16),16).longValue();
+            System.out.println(L[i]);
         }
 
         return L;
