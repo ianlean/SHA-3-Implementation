@@ -1,5 +1,5 @@
+import java.math.BigInteger;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.Arrays;
 
 public class Utils {
@@ -12,49 +12,66 @@ public class Utils {
         String y = left_encode((hex1.length()/2)*8)+hex1;
         //printHex(y+z);
         String output = bytepad(y+z,w);
-       // printHex(output);
+        printHex(output);
 
 
         return output;
     }
     long[] hexToLong(String hex){
         long[] L = new long[25];
-        Arrays.fill(L,0L);
-        Byte[] bytes = new Byte[hex.length()/2];
+        Arrays.fill(L,0x000000000L);
 
-        for (int i = 0; i < bytes.length; i++) {
-            int index = i * 2;
-            int j = Integer.parseInt(hex.substring(index, index + 2), 16);
-            bytes[i] = (byte) j;
-        }
-        //byte[] bytes = { 1,2,3,4 };
-        //long l = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN).getInt() & 0x0FFFFFFFFL;
-        int z = 0;
-        int j = 0;
-        int end = 0;
-        int longIndex =0;
-        byte[] tempByte = new byte[8];
-        while (j < bytes.length && longIndex<25){
-            if( z%8 == 0 && z != 0){
-                z=0;
-                end++;
-                L[longIndex] = ByteBuffer.wrap(tempByte).order(ByteOrder.BIG_ENDIAN).getInt() & 0x0FFFFFFFFL;
-                longIndex++;
-            }
-            tempByte[z] =  bytes[j];
-            z++;
-            j++;
+        for (int i = 0; i*16 < hex.length(); i++) {
+            L[i] = new BigInteger(hex.substring(i*16, i*16+16),16).longValue();
         }
 
         return L;
+
+
+
+
+        // System.out.println(new BigInteger(hex.substring(0, 16),16).longValue());
+        // for (int i = 0; i < bytes.length; i++) {
+        //     int index = i * 2;
+        //     int j = Integer.parseInt(hex.substring(index, index + 2), 16);
+        //     bytes[i] = (byte) j;
+        // }
+        // //byte[] bytes = { 1,2,3,4 };
+        // //long l = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN).getInt() & 0x0FFFFFFFFL;
+        // int z = 0;
+        // int j = 0;
+        // int end = 0;
+        // int longIndex =0;
+        // byte[] tempByte = new byte[8];
+        // while (j < bytes.length && longIndex<25){
+        //     if( z%8 == 0 && z != 0){
+        //         z=0;
+        //         end++;
+        //         L[longIndex] = ByteBuffer.wrap(tempByte).order(ByteOrder.BIG_ENDIAN).getInt();
+        //         longIndex++;
+                
+        //     }
+        //     tempByte[z] =  bytes[j];
+        //     z++;
+        //     j++;
+        // }
+
+        // return L;
     }
 
     String longToHex(long[] input){
         String hex ="";
         for (int i = 0; i < input.length; i++) {
+            //System.out.println(input[i]);
             byte[] bytes = ByteBuffer.allocate(Long.SIZE / Byte.SIZE).putLong(input[i]).array();
+            //System.out.println();
             for (int j = 0; j < 8; j++) {
-                hex += Long.toHexString(bytes[j] & 0xff);
+                String temp = (Long.toHexString(bytes[j] & 0xff));
+                
+                if(temp.length()<2){
+                    temp = "0"+temp;
+                }
+                hex += temp;
             }
         }
 
@@ -77,8 +94,14 @@ public class Utils {
     void printHex(String hex) {
         System.out.println("");
         hex = hex.toUpperCase();
+        int c = 0;
         for (int i = 0; i < hex.length()-1; i=i+2) {
             System.out.print(hex.charAt(i)+""+hex.charAt(i+1)+" ");
+            c++;
+            if(c%16==0){
+                System.out.println("");
+                c=0;
+            }
         }
         System.out.println("");
     }

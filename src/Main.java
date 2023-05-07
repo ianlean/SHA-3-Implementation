@@ -1,30 +1,73 @@
-import java.util.Arrays;
+
 
 class Main{
     final static Utils utils = new Utils();
     final static Keccak keccak = new Keccak();
     public static void main(String[] args){
+        String input = "";
         String bitString = utils.keccakInput("","Email Signature",136);
 
         String h1 = "194CCD058B2A83D60229DC6984D14F158B694FA4BD";
-        String h2 = "000102030400";
-
-        System.out.println(bitString.length());
+        String h2 = "00 00 00 00 00 01 88 01 00 00 00 00 00 6C 69 61 00 00 00 00 00 75 74 61 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00";
+        String h3="018801000178456D61696C205369676E617475726500000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
+        
         //System.out.println("XOR "+utils.XORhex(h1, h2));
-
+        utils.printHex((bitString));
         long[] l = utils.hexToLong(bitString);
-        System.out.println(Arrays.toString(l));
+        utils.printHex((utils.longToHex(l)));
 
-        l = keccak.sha3_keccakf(l);
-        System.out.println(Arrays.toString(l));
+        System.out.println(utils.longToHex(l).substring(0, bitString.length()).equals(bitString));
         utils.printHex(utils.longToHex(l));
+        l = keccak.sha3_keccakf(l);
+        utils.printHex(utils.longToHex(l));
+
+    
+  
+        
     //     System.out.println(utils.longToHex(l));
     //     System.out.println(Arrays.toString(l));
+
+    
      }
 
 
+    //  public static byte[] longToBytes(long l) {
+    //     byte[] result = new byte[8];
+    //     for (int i = 7; i >= 0; i--) {
+    //         result[i] = (byte)(l & 0xFF);
+    //         l >>= 8;
+    //     }
+    //     return result;
+    // }
+    
+    // public static long bytesToLong(final byte[] b) {
+    //     long result = 0;
+    //     for (int i = 0; i < 8; i++) {
+    //         result <<= 8;
+    //         result |= (b[i] & 0xFF);
+    //     }
+    //     return result;
+    // }
+    // static String longToHex(long[] input){
+    //     String hex ="";
+    //     for (int i = 0; i < input.length; i++) {
+    //         //System.out.println(input[i]);
+    //         byte[] bytes = ByteBuffer.allocate(Long.SIZE / Byte.SIZE).putLong(input[i]).array();
+    //         //System.out.println(bytesToLong(bytes));
+    //         for (int j = 0; j < 8; j++) {
+    //             String temp = (Long.toHexString(bytes[j] & 0xff));
+                
+    //             if(temp.length()<2){
+    //                 temp = "0"+temp;
+    //             }
+    //             hex += temp;            
+    //             //System.out.println("   temp "+temp);
 
+    //         }
+    //     }
 
+    //     return hex;
+    // }
 }
 /*// Initialize the context for SHA3
 
