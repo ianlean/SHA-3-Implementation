@@ -3,25 +3,35 @@
 class Main{
     final static Utils utils = new Utils();
     final static Keccak keccak = new Keccak();
+    final static int rate = 256;
+    final static int capacity = 576;
     public static void main(String[] args){
-        String input = "";
+        String input = "Wow Its Broken";
         String bitString = utils.keccakInput("","Email Signature",136);
 
-        String h1 = "194CCD058B2A83D60229DC6984D14F158B694FA4BD";
-        String h2 = "00 00 00 00 00 01 88 01 00 00 00 00 00 6C 69 61 00 00 00 00 00 75 74 61 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00";
-        String h3="018801000178456D61696C205369676E617475726500000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
-        
+
         //System.out.println("XOR "+utils.XORhex(h1, h2));
         utils.printHex((bitString));
         long[] l = utils.hexToLong(bitString);
-        utils.printHex((utils.longToHex(l)));
+        //utils.printHex((utils.longToHex(l)));
 
-        System.out.println(utils.longToHex(l).substring(0, bitString.length()).equals(bitString));
+        //System.out.println(utils.longToHex(l).substring(0, bitString.length()).equals(bitString));
         utils.printHex(utils.longToHex(l));
         l = keccak.sha3_keccakf(l);
         utils.printHex(utils.longToHex(l));
 
-    
+        //String h1 = utils.textToHexString(input);
+        //utils.printHex(h1);
+       
+
+        //String h2 = utils.longToHex(l);
+        //System.out.println("helloooooo");
+        //utils.printHex(h2);
+        //System.out.println("helloooooo");
+
+        //String h3 = utils.XORhex(h1,h2.substring(0,rate )) + h2.substring(rate);
+        //utils.printHex(h3);
+        //l = utils.hexToLong(h3);
   
         
     //     System.out.println(utils.longToHex(l));

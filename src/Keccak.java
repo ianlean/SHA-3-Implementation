@@ -40,10 +40,10 @@ public class Keccak {
         //endianess conversion. this is redundant on little-endian targets
         for (i = 0; i < 25; i++) {
             v = longToBytes(st[i]);
-            st[i] = ((long)v[0]) | (((long)v[1]) << 8) |
-                    (((long)v[2]) << 16) | (((long)v[3]) << 24) |
-                    (((long)v[4]) << 32) | (((long)v[5]) << 40) |
-                    (((long)v[6]) << 48) | (((long)v[7]) << 56);
+            st[i] = ((long)v[0]& 0xFFL) | (((long)v[1]& 0xFFL) << 8) |
+                    (((long)v[2]& 0xFFL) << 16) | (((long)v[3]& 0xFFL) << 24) |
+                    (((long)v[4]& 0xFFL) << 32) | (((long)v[5]& 0xFFL) << 40) |
+                    (((long)v[6]& 0xFFL) << 48) | (((long)v[7]& 0xFFL) << 56);
         }
 
 
@@ -104,7 +104,7 @@ public class Keccak {
     }
 
     long ROTL64(long x, int y) {
-        return (((x) << (y)) | ((x) >> (64 - (y))));
+        return (((x) << (y)) | ((x) >>> (64 - (y))));
     }
     byte[] longToBytes(long l) {
         byte[] result = new byte[Long.BYTES];
