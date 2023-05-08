@@ -1,171 +1,180 @@
-
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.security.SecureRandom;
+import java.util.Arrays;
+import java.util.Scanner;
 
 class Main{
     final static Utils utils = new Utils();
     final static Keccak keccak = new Keccak();
     final static int rate = 256;
     final static int capacity = 576;
-    public static void main(String[] args){
-        String input = "Wow Its Broken";
-        String bitString = utils.keccakInput("","Email Signature",136);
 
+    final static KMACXOF256 k = new KMACXOF256();
 
-        //System.out.println("XOR "+utils.XORhex(h1, h2));
-        utils.printHex((bitString));
-        long[] l = utils.hexToLong(bitString);
-        //utils.printHex((utils.longToHex(l)));
-
-        //System.out.println(utils.longToHex(l).substring(0, bitString.length()).equals(bitString));
-        utils.printHex(utils.longToHex(l));
-        l = keccak.sha3_keccakf(l);
-        utils.printHex(utils.longToHex(l));
-
-        //String h1 = utils.textToHexString(input);
-        //utils.printHex(h1);
-       
-
-        //String h2 = utils.longToHex(l);
-        //System.out.println("helloooooo");
-        //utils.printHex(h2);
-        //System.out.println("helloooooo");
-
-        //String h3 = utils.XORhex(h1,h2.substring(0,rate )) + h2.substring(rate);
-        //utils.printHex(h3);
-        //l = utils.hexToLong(h3);
-  
-        
-    //     System.out.println(utils.longToHex(l));
-    //     System.out.println(Arrays.toString(l));
-
-    
+    public static void main(String[] args) {
+        menuPrompt(new Scanner(System.in));
+        //System.out.println(Arrays.toString(encryption()));
+        //decryption();
+        //[3daf63f41f4f31da9dcbb61aa8ff785f957c0243de3fa8a792545efcb4c1f50459e78fb8733ee1489c0b2db6a5e7eec3458bef215405f678503697bde649422b, , e4b8b54aae092fe89e3a487ec745d198dda773c3ccd432753f409b7c035253db]
     }
 
 
-    //  public static byte[] longToBytes(long l) {
-    //     byte[] result = new byte[8];
-    //     for (int i = 7; i >= 0; i--) {
-    //         result[i] = (byte)(l & 0xFF);
-    //         l >>= 8;
-    //     }
-    //     return result;
-    // }
-    
-    // public static long bytesToLong(final byte[] b) {
-    //     long result = 0;
-    //     for (int i = 0; i < 8; i++) {
-    //         result <<= 8;
-    //         result |= (b[i] & 0xFF);
-    //     }
-    //     return result;
-    // }
-    // static String longToHex(long[] input){
-    //     String hex ="";
-    //     for (int i = 0; i < input.length; i++) {
-    //         //System.out.println(input[i]);
-    //         byte[] bytes = ByteBuffer.allocate(Long.SIZE / Byte.SIZE).putLong(input[i]).array();
-    //         //System.out.println(bytesToLong(bytes));
-    //         for (int j = 0; j < 8; j++) {
-    //             String temp = (Long.toHexString(bytes[j] & 0xff));
-                
-    //             if(temp.length()<2){
-    //                 temp = "0"+temp;
-    //             }
-    //             hex += temp;            
-    //             //System.out.println("   temp "+temp);
-
-    //         }
-    //     }
-
-    //     return hex;
-    // }
-}
-/*// Initialize the context for SHA3
-
-int sha3_init(sha3_ctx_t *c, int mdlen)
-{
-    int i;
-
-    for (i = 0; i < 25; i++)
-        c->st.q[i] = 0;
-    c->mdlen = mdlen;
-    c->rsiz = 200 - 2 * mdlen;
-    c->pt = 0;
-
-    return 1;
-}
-
-// update state with more data
-
-int sha3_update(sha3_ctx_t *c, const void *data, size_t len)
-{
-    size_t i;
-    int j;
-
-    j = c->pt;
-    for (i = 0; i < len; i++) {
-        c->st.b[j++] ^= ((const uint8_t *) data)[i];
-        if (j >= c->rsiz) {
-            sha3_keccakf(c->st.q);
-            j = 0;
+    private static void menuPrompt(Scanner s) {
+        while (true) {
+            System.out.println("""
+                    Select the service you would like:
+                        A) Compute a plain cryptographic hash
+                        B) Compute an authentication tag (MAC)
+                        C) Encrypt a given data file
+                        D) Decrypt a given symmetric cryptogram
+                    """);
+            String choice = s.next();
+            switch (choice.toLowerCase()) {
+                case "a":
+                    plainHash();
+                    return;
+                case "b":
+                    authenticationTag();
+                    return;
+                case "c":
+                    System.out.println(encryption());
+                    return;
+                case "d":
+                    //decryptService(decryptPreviousEncryptOrGivenCryptogram(s));
+                    return;
+                default:
+                    System.out.println("That is not a service try again");
+            }
         }
     }
-    c->pt = j;
 
-    return 1;
-}
-
-// finalize and output a hash
-
-int sha3_final(void *md, sha3_ctx_t *c)
-{
-    int i;
-
-    c->st.b[c->pt] ^= 0x06;
-    c->st.b[c->rsiz - 1] ^= 0x80;
-    sha3_keccakf(c->st.q);
-
-    for (i = 0; i < c->mdlen; i++) {
-        ((uint8_t *) md)[i] = c->st.b[i];
-    }
-
-    return 1;
-}
-
-// compute a SHA-3 hash (md) of given byte length from "in"
-
-void *sha3(const void *in, size_t inlen, void *md, int mdlen)
-{
-    sha3_ctx_t sha3;
-
-    sha3_init(&sha3, mdlen);
-    sha3_update(&sha3, in, inlen);
-    sha3_final(md, &sha3);
-
-    return md;
-}
-
-// SHAKE128 and SHAKE256 extensible-output functionality
-
-void shake_xof(sha3_ctx_t *c)
-{
-    c->st.b[c->pt] ^= 0x1F;
-    c->st.b[c->rsiz - 1] ^= 0x80;
-    sha3_keccakf(c->st.q);
-    c->pt = 0;
-}
-
-void shake_out(sha3_ctx_t *c, void *out, size_t len)
-{
-    size_t i;
-    int j;
-
-    j = c->pt;
-    for (i = 0; i < len; i++) {
-        if (j >= c->rsiz) {
-            sha3_keccakf(c->st.q);
-            j = 0;
+    private static void plainHash() {
+        Scanner s = new Scanner(System.in);
+        System.out.println("Choose what you would like to hash: \n" +
+                "   A) file input\n   B) user input");
+        String choice = s.nextLine();
+        if (choice.equalsIgnoreCase("A")) {
+            String data = gettingFileInfo(s);
+            System.out.println(k.KMACJOB("", data, "", 512 / 4));
+        } else if (choice.equalsIgnoreCase("B")) {
+            System.out.println("Enter the phrase you want to hash: ");
+            String data = s.nextLine();
+            System.out.println(k.KMACJOB("", data, "", 512 / 4));
+        } else {
+            System.out.println("That is not a service try again: ");
+            plainHash();
         }
-        ((uint8_t *) out)[i] = c->st.b[j++];
     }
-    c->pt = j;
-} */
+
+    private static void authenticationTag() {
+        //input will be "file" or "user input"
+        String passphrase = null;
+        Scanner s = new Scanner(System.in);
+        String data = null;
+        System.out.println("Choose what you would like to hash: \n" +
+                "   A) file input\n   B) user input");
+        String choice = s.nextLine();
+        if (choice.equalsIgnoreCase("A")) {
+            data = gettingFileInfo(s);
+        } else if (choice.equalsIgnoreCase("B")) {
+            System.out.println("Enter the phrase you want to hash: ");
+            data = s.nextLine();
+
+        } else {
+            System.out.println("That is not a service try again: ");
+            authenticationTag();
+        }
+        System.out.println(data);
+        System.out.println("Please enter a passphrase: ");
+        String passPhrase = s.nextLine();
+        System.out.println("Please enter a Customization String(optional): ");
+        String cStr = s.nextLine();
+        System.out.println(k.KMACJOB(passPhrase, data, cStr, 512 / 4));
+    }
+
+    private static String[] encryption() {
+        Scanner s = new Scanner(System.in);
+        byte[] values = new byte[64];
+        SecureRandom sr = new SecureRandom();
+        sr.nextBytes(values);
+        String z = bytesToHex(values);
+
+        String m = utils.textToHexString(gettingFileInfo(s));
+        System.out.println("Please enter a passphrase");
+        String pw = s.nextLine();
+
+
+        String keka = k.KMACJOB(z + pw, "", "S", 1024 / 4);
+        String ke = keka.substring(0, keka.length() / 2);
+        String ka = keka.substring(keka.length() / 2);
+
+        String c = utils.XORhex(k.KMACJOB(ke, "", "SKE", m.length()), m);
+        String t = k.KMACJOB(ka, m, "SKA", 512 / 4);
+
+        return new String[]{z, c, t};
+    }
+
+    private static void decryption() {
+        Scanner s = new Scanner(System.in);
+        System.out.println("Please enter a z: ");
+        String z = s.nextLine();
+
+        System.out.println("Please enter a c: ");
+        String c = s.nextLine();
+        System.out.println("Please enter a t: ");
+        String t = s.nextLine();
+        System.out.println("Please enter the password: ");
+        String pw = s.nextLine();
+
+
+        String keka = k.KMACJOB(z + pw, "", "S", 1024 / 4);
+        String ke = keka.substring(0, keka.length() / 2);
+        String ka = keka.substring(keka.length() / 2);
+
+        String m = utils.XORhex(k.KMACJOB(ke, "", "SKE", c.length()), c);
+        String tPrime = k.KMACJOB(ka, m, "SKA", 512 / 4);
+
+        if (t == tPrime) {
+            System.out.println("Accepted Input");
+        } else {
+            System.out.println("Incorrect t != t'");
+        }
+    }
+
+    private static String bytesToHex(byte[] bytes) {
+        StringBuilder sb = new StringBuilder();
+        for (byte b : bytes) {
+            sb.append(String.format("%02x", b));
+        }
+        System.out.println(sb.toString());
+        return sb.toString();
+    }
+
+    public static String gettingFileInfo(Scanner s) {
+        boolean done = false;
+        String theString = null;
+        while (!done) {
+            System.out.println("Please enter the full path of the file:");
+            File f = new File(s.nextLine());
+            if (f.exists()) {
+                try {
+                    theString = new String(Files.readAllBytes(f.getAbsoluteFile().toPath()));
+                    done = true;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                System.out.println("ERROR: File doesn't exist. try again: ");
+            }
+        }
+        return theString;
+    }
+}
+
+//kmacxof
+//Total input
+//01 88 02 01 00 40 41 42 43 44 45 46 47 48 49 4A4B 4C 4D 4E 4F 50 51 52 53 54 55 56 57 58 59 5A 5B 5C 5D 5E 5F 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00       00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00       00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00        00 00 00 00 00 00 00 0000 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F10 11 12 13 14 15 16 17 18 19 1A 1B 1C 1D 1E 1F20 21 22 23 24 25 26 27 28 29 2A 2B 2C 2D 2E 2F30 31 32 33 34 35 36 37 38 39 3A 3B 3C 3D 3E 3F40 41 42 43 44 45 46 47 48 49 4A 4B 4C 4D 4E 4F50 51 52 53 54 55 56 57 58 59 5A 5B 5C 5D 5E 5F60 61 62 63 64 65 66 67 68 69 6A 6B 6C 6D 6E 6F70 71 72 73 74 75 76 77 78 79 7A 7B 7C 7D 7E 7F80 81 82 83 84 85 86 87 88 89 8A 8B 8C 8D 8E 8F90 91 92 93 94 95 96 97 98 99 9A 9B 9C 9D 9E 9FA0 A1 A2 A3 A4 A5 A6 A7 A8 A9 AA AB AC AD AE AFB0B1B2B3B4B5B6B7B8B9BABBBCBDBEBFC0C1C2C3C4C5C6C70001
+//Bytepad
+//01 88 01 20 4B 4D 41 43 01 A8 4D 79 20 54 61 67        67 65 64 20 41 70 70 6C 69 63 61 74 69 6F 6E 00        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00        00 00 00 00 00 00 00 00
