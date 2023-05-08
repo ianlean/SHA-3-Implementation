@@ -5,7 +5,10 @@ import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Scanner;
 
-class Main{
+//Authors:   Patrick Tibbals, Iam McLean
+
+
+class Main {
     final static Utils utils = new Utils();
     final static Keccak keccak = new Keccak();
     final static int rate = 256;
@@ -14,10 +17,10 @@ class Main{
     final static KMACXOF256 k = new KMACXOF256();
 
     public static void main(String[] args) {
-        menuPrompt(new Scanner(System.in));
-        //System.out.println(Arrays.toString(encryption()));
-        //decryption();
-        //[3daf63f41f4f31da9dcbb61aa8ff785f957c0243de3fa8a792545efcb4c1f50459e78fb8733ee1489c0b2db6a5e7eec3458bef215405f678503697bde649422b, , e4b8b54aae092fe89e3a487ec745d198dda773c3ccd432753f409b7c035253db]
+        while (true) {
+            menuPrompt(new Scanner(System.in));
+        }
+
     }
 
 
@@ -30,7 +33,7 @@ class Main{
                         C) Encrypt a given data file
                         D) Decrypt a given symmetric cryptogram
                     """);
-            String choice = s.next();
+            String choice = s.nextLine();
             switch (choice.toLowerCase()) {
                 case "a":
                     plainHash();
@@ -42,7 +45,7 @@ class Main{
                     System.out.println(encryption());
                     return;
                 case "d":
-                    //decryptService(decryptPreviousEncryptOrGivenCryptogram(s));
+                    decryption();
                     return;
                 default:
                     System.out.println("That is not a service try again");
@@ -94,7 +97,7 @@ class Main{
         System.out.println(k.KMACJOB(passPhrase, data, cStr, 512 / 4));
     }
 
-    private static String[] encryption() {
+    private static String encryption() {
         Scanner s = new Scanner(System.in);
         byte[] values = new byte[64];
         SecureRandom sr = new SecureRandom();
@@ -113,12 +116,12 @@ class Main{
         String c = utils.XORhex(k.KMACJOB(ke, "", "SKE", m.length()), m);
         String t = k.KMACJOB(ka, m, "SKA", 512 / 4);
 
-        return new String[]{z, c, t};
+        return Arrays.toString(new String[]{z, c, t});
     }
 
     private static void decryption() {
         Scanner s = new Scanner(System.in);
-        System.out.println("Please enter a z: ");
+        System.out.println("Please enter a z: '");
         String z = s.nextLine();
 
         System.out.println("Please enter a c: ");
@@ -148,7 +151,7 @@ class Main{
         for (byte b : bytes) {
             sb.append(String.format("%02x", b));
         }
-        System.out.println(sb.toString());
+
         return sb.toString();
     }
 

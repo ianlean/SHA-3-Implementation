@@ -1,3 +1,6 @@
+//Authors:   Patrick Tibbals, Iam McLean
+
+
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -25,13 +28,22 @@ public class Utils {
         return L;
     }
 
+
+    String byteArrToHex(byte[] bytes){
+        String out = "";
+        for (byte b : bytes) {
+            out += Integer.toHexString(Integer.valueOf(b));
+        }
+        return out;
+    }
+
     String longToHex(long[] input){
         String hex ="";
         for (int i = 0; i < input.length; i++) {
             byte[] bytes = ByteBuffer.allocate(Long.SIZE / Byte.SIZE).putLong(input[i]).array();
             for (int j = 0; j < 8; j++) {
                 String temp = (Long.toHexString(bytes[j] & 0xff));
-                
+
                 if(temp.length()<2){
                     temp = "0"+temp;
                 }
@@ -41,6 +53,8 @@ public class Utils {
 
         return hex;
     }
+
+
 
     String textToHexString(String text){
         StringBuffer hex = new StringBuffer();
@@ -118,7 +132,7 @@ public class Utils {
     String XORhex(String hex1, String hex2){
         String xord = "";
         int loopSize = 0;
-        
+
         hex1 = appendHex(hex1);
         hex2 = appendHex(hex2);
 
@@ -127,7 +141,7 @@ public class Utils {
         if(hex1.length() > hex2.length()){
             loopSize = hex2.length();
             xord = hex1.substring(loopSize);
-        // hex2 is longest    
+            // hex2 is longest
         }else{
             loopSize = hex1.length();
             xord = hex2.substring(loopSize);
@@ -143,11 +157,11 @@ public class Utils {
                 hex = "0"+hex;
             }
             loopSize -= 2;
-            str += hex;  
+            str += hex;
         }
 
         xord = str + xord;
-        
+
         return xord;
     }
     String appendHex(String hex){
