@@ -81,7 +81,7 @@ class Main {
             String data = s.nextLine();
             System.out.println("Please enter a Customization String(optional): ");
             String cStr = s.nextLine();
-            System.out.println( new SHAKE256().Sponge(utils.textToHexString(data), "", cStr, 512 / 2));
+            System.out.println( new SHAKE256().Sponge(utils.textToHexString(data), "", cStr 512 / 2));
         } else {
             System.out.println("That is not a service try again: ");
             plainHash();
