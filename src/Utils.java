@@ -4,6 +4,7 @@
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.regex.Pattern;
 
 public class Utils {
 
@@ -61,6 +62,10 @@ public class Utils {
         char ch[] = text.toCharArray();
         for(int i = 0; i < ch.length; i++) {
             String temp = Integer.toHexString(ch[i]);
+            if(Character.isDigit(ch[i])){
+                temp = "0"+ch[i];
+            }
+
             if(temp.length()<2){
                 temp = "0"+temp;
             }
@@ -106,27 +111,32 @@ public class Utils {
 
 
     String encode_string(String input){
-        if (input.length() < 22040){
-            return left_encode(input.length()) + input;
+        if (input.length()*4 < 22040){
+            return left_encode(input.length()*4) + input;
         }
         return "";
     }
-
-    String right_encode(int X){
-        String hex = Integer.toHexString(X);
-        if(hex.length()<2){
-            hex = "0"+hex;
+    String[] intToHex(int X){
+        String hex[] = new String[2];
+        hex[0] = Integer.toHexString(X);
+        if(hex[0].length()%2 != 0){
+            hex[0] = "0"+hex[0];
         }
-        return hex+hexOne;
+        hex[1] = Integer.toHexString(hex[0].length()/2);
+        if(hex[1].length()%2 != 0){
+            hex[1] = "0"+hex[1];
+        }
+        return hex;
+    }
+    String right_encode(int X){
+        String[] encoded = intToHex(X);
+        return encoded[0]+encoded[1];
     }
     // 0
-    final String hexOne = "01";
     String left_encode(int X){
-        String hex = Integer.toHexString(X);
-        if(hex.length()<2){
-            hex = "0"+hex;
-        }
-        return hexOne + hex;
+        System.out.println(X);
+        String[] encoded = intToHex(X);
+        return new thing().binaryToHex(new thing().left_encode(X)).replaceAll("\\s","");
     }
 
     String XORhex(String hex1, String hex2){

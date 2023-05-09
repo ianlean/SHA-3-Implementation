@@ -15,11 +15,23 @@ class Main {
     final static int capacity = 576;
 
     final static KMACXOF256 k = new KMACXOF256();
-
+//@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_
     public static void main(String[] args) {
+        System.out.println(utils.left_encode(256));
+        System.out.println(utils.right_encode(256));
+        String data = "0123";
+        String K ="@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_";
+        System.out.println("length1111"+utils.textToHexString(K).length());
+        String newX = utils.bytepad((utils.encode_string(utils.textToHexString(K))), 136) + utils.textToHexString(data) + utils.right_encode(0);
+        System.out.println(newX);
+        //utils.printHex(new SHAKE256().Sponge(newX,"KMAC","My Tagged Application",256));
+        utils.printHex(k.KMACJOB(K,data,"My Tagged Application",256));
+
         while (true) {
             menuPrompt(new Scanner(System.in));
         }
+
+
 
     }
 
@@ -60,11 +72,16 @@ class Main {
         String choice = s.nextLine();
         if (choice.equalsIgnoreCase("A")) {
             String data = gettingFileInfo(s);
-            System.out.println(k.KMACJOB("", data, "", 512 / 4));
+            System.out.println("Please enter a Customization String(optional): ");
+            String cStr = s.nextLine();
+
+            System.out.println( new SHAKE256().Sponge(utils.textToHexString(data), "", cStr, 512 / 2));
         } else if (choice.equalsIgnoreCase("B")) {
             System.out.println("Enter the phrase you want to hash: ");
             String data = s.nextLine();
-            System.out.println(k.KMACJOB("", data, "", 512 / 4));
+            System.out.println("Please enter a Customization String(optional): ");
+            String cStr = s.nextLine();
+            System.out.println( new SHAKE256().Sponge(utils.textToHexString(data), "", cStr, 512 / 2));
         } else {
             System.out.println("That is not a service try again: ");
             plainHash();
@@ -75,26 +92,27 @@ class Main {
         //input will be "file" or "user input"
         String passphrase = null;
         Scanner s = new Scanner(System.in);
-        String data = null;
+        String X = null;
         System.out.println("Choose what you would like to hash: \n" +
                 "   A) file input\n   B) user input");
         String choice = s.nextLine();
         if (choice.equalsIgnoreCase("A")) {
-            data = gettingFileInfo(s);
+            X = gettingFileInfo(s);
         } else if (choice.equalsIgnoreCase("B")) {
             System.out.println("Enter the phrase you want to hash: ");
-            data = s.nextLine();
+            X = s.nextLine();
 
         } else {
             System.out.println("That is not a service try again: ");
             authenticationTag();
         }
-        System.out.println(data);
+        System.out.println(X);
         System.out.println("Please enter a passphrase: ");
-        String passPhrase = s.nextLine();
+        String K = s.nextLine();
         System.out.println("Please enter a Customization String(optional): ");
-        String cStr = s.nextLine();
-        System.out.println(k.KMACJOB(passPhrase, data, cStr, 512 / 4));
+        String S = s.nextLine();
+        utils.printHex(k.KMACJOB(K,X,S,256));
+
     }
 
     private static String encryption() {

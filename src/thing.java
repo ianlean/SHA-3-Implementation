@@ -3,18 +3,11 @@ import java.util.Arrays;
 public class thing {
 
     public static void main(String[] args) {
-       // System.out.println(binaryToHex(left_encode(0)));
-        System.out.println(left_encode(30));
-//        String hex = binaryToHex(binary);
-//        String n = "";
         String s = "Email Signature";
+        String poop = "";
         String S = textToHexString(s);
         //System.out.println(textToHexString(S));
-        System.out.println(binaryToHex(left_encode(s.length()*2)) + binaryToHex(textToBinaryString(s)));
-        System.out.println(encode_string(s));
-        System.out.println("0 1 7 8 4 5 6 D 6 1 6 9 6 C 2 0 5 3 6 9 6 7 6 E 6 1 7 4 7 5 7 2" +
-                "6 5");
-
+        System.out.println(binaryToHex(right_encode(256)));
     }
 
     static String textToHexString(String text){
@@ -52,8 +45,6 @@ public class thing {
     }
 
     static String binaryToHex(String binary) {
-//       long decimal = Integer.parseInt(binary,2);
-//       return Long.toHexString(decimal);
         String thing = "";
         for (int i = 0; i <= binary.length()-4; i += 4) {
            int decimal = Integer.parseInt(binary.substring(i, i+4), 2);
@@ -62,24 +53,23 @@ public class thing {
         return thing;
     }
 
-    static String bytepad(String X, int w) {
+    String bytepad(String X, int w) {
         String z = "";
-// Validity Conditions: w > 0
+        String y = "";
         if(w > 0){
-// 1. z = left_encode(w) || X.
             z = left_encode(w)+X;
-//2. while len(z) mod 8 ≠ 0:
-//          z = z || 0
-            while (z.length() % 8 != 0){
-                z += "0";
+
+            while ((z.length()*4+y.length()) % 8 != 0){
+                y += "0";
             }
-//3. while (len(z)/8) mod w ≠ 0:
-//          z = z || 00000000
-            while ((z.length()/8) % w != 0){
-                z += "00000000";
+            for (int i = 0; i < y.length(); i=i+4) {
+                z+="0";
+            }
+
+            while ((z.length()*4/8) % w != 0){
+                z += "00";
             }
         }
-        System.out.println(z.length());
         return z;
     }
 
@@ -89,11 +79,31 @@ public class thing {
         //find n such that 2^(8n) > x, which gives the number of bytes to split into
         int n = find_n(X);
         // append extra zeros to the number if needed
-        binary = base_two_five_six(binary).reverse().toString();
+        binary = base_two_five_six(binary).toString();
+        StringBuilder s = new StringBuilder(binary);
 
-        return base_two_five_six(Integer.toBinaryString(n)) + binary;
+        String temp = Integer.toBinaryString(n);
+        temp = base_two_five_six(temp).toString();
+        StringBuilder finalN = new StringBuilder(temp);
+        System.out.println(finalN);
+        return String.valueOf(finalN.toString() + s);
     }
 
+    static String right_encode(int X){
+        // find binary representation of x
+        String binary = Integer.toBinaryString(X);
+        //find n such that 2^(8n) > x, which gives the number of bytes to split into
+        int n = find_n(X);
+        // append extra zeros to the number if needed
+        binary = base_two_five_six(binary).toString();
+        StringBuilder s = new StringBuilder(binary);
+
+        String temp = Integer.toBinaryString(n);
+        temp = base_two_five_six(temp).toString();
+        StringBuilder finalN = new StringBuilder(temp);
+        System.out.println(finalN);
+        return String.valueOf(s + finalN.toString());
+    }
     private static StringBuilder base_two_five_six(String s) {
         StringBuilder sb = new StringBuilder(s);
 
@@ -120,7 +130,7 @@ public class thing {
     private static int find_n(int x) {
         int base = 256;
         int n = 1;
-        while(Math.pow(base,n) < x) {
+        while(!(Math.pow(base,n) > x)) {
             n++;
         }
         return n;
