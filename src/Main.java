@@ -2,7 +2,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.security.SecureRandom;
-import java.util.Arrays;
 import java.util.Scanner;
 
 //Authors:   Patrick Tibbals, Iam McLean
@@ -15,19 +14,12 @@ class Main {
     final static int capacity = 576;
 
     final static KMACXOF256 k = new KMACXOF256();
-//@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_
-    public static void main(String[] args) {
-        System.out.println(utils.left_encode(256));
-        System.out.println(utils.right_encode(256));
-        String data = "0123";
-        String K ="@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_";
-        System.out.println("length1111"+utils.textToHexString(K).length());
-        String newX = utils.bytepad((utils.encode_string(utils.textToHexString(K))), 136) + utils.textToHexString(data) + utils.right_encode(0);
-        System.out.println(newX);
-        //utils.printHex(new SHAKE256().Sponge(newX,"KMAC","My Tagged Application",256));
-        utils.printHex(k.KMACJOB(K,data,"My Tagged Application",256));
 
-        while (true) {
+    static String[] endcodedFile = null;
+    static boolean run = true;
+    public static void main(String[] args) {
+
+        while (run) {
             menuPrompt(new Scanner(System.in));
         }
 
@@ -37,13 +29,14 @@ class Main {
 
 
     private static void menuPrompt(Scanner s) {
-        while (true) {
+        while (run) {
             System.out.println("""
                     Select the service you would like:
                         A) Compute a plain cryptographic hash
                         B) Compute an authentication tag (MAC)
                         C) Encrypt a given data file
                         D) Decrypt a given symmetric cryptogram
+                        E) EXIT
                     """);
             String choice = s.nextLine();
             switch (choice.toLowerCase()) {
@@ -54,11 +47,15 @@ class Main {
                     authenticationTag();
                     return;
                 case "c":
-                    System.out.println(encryption());
+                    encryption();
                     return;
                 case "d":
                     decryption();
                     return;
+                case "e":
+                    System.out.println("Good Bye");
+                    run = false;
+                    break;
                 default:
                     System.out.println("That is not a service try again");
             }
@@ -74,14 +71,13 @@ class Main {
             String data = gettingFileInfo(s);
             System.out.println("Please enter a Customization String(optional): ");
             String cStr = s.nextLine();
-
             System.out.println( new SHAKE256().Sponge(utils.textToHexString(data), "", cStr, 512 / 2));
         } else if (choice.equalsIgnoreCase("B")) {
             System.out.println("Enter the phrase you want to hash: ");
             String data = s.nextLine();
             System.out.println("Please enter a Customization String(optional): ");
             String cStr = s.nextLine();
-            System.out.println( new SHAKE256().Sponge(utils.textToHexString(data), "", cStr 512 / 2));
+            System.out.println( new SHAKE256().Sponge(utils.textToHexString(data), "", cStr, 512 / 2));
         } else {
             System.out.println("That is not a service try again: ");
             plainHash();
@@ -89,8 +85,6 @@ class Main {
     }
 
     private static void authenticationTag() {
-        //input will be "file" or "user input"
-        String passphrase = null;
         Scanner s = new Scanner(System.in);
         String X = null;
         System.out.println("Choose what you would like to hash: \n" +
@@ -106,7 +100,7 @@ class Main {
             System.out.println("That is not a service try again: ");
             authenticationTag();
         }
-        System.out.println(X);
+
         System.out.println("Please enter a passphrase: ");
         String K = s.nextLine();
         System.out.println("Please enter a Customization String(optional): ");
@@ -115,7 +109,7 @@ class Main {
 
     }
 
-    private static String encryption() {
+    private static void encryption() {
         Scanner s = new Scanner(System.in);
         byte[] values = new byte[64];
         SecureRandom sr = new SecureRandom();
@@ -132,35 +126,33 @@ class Main {
         String ka = keka.substring(keka.length() / 2);
 
         String c = utils.XORhex(k.KMACJOB(ke, "", "SKE", m.length()), m);
-        String t = k.KMACJOB(ka, m, "SKA", 512 / 4);
-
-        return Arrays.toString(new String[]{z, c, t});
+        String t = k.KMACJOB(ka, m, "SKA", 512 / 2);
+        endcodedFile = new String[]{z,c,t};
+        System.out.println("Encoded successfully");
     }
 
     private static void decryption() {
-        Scanner s = new Scanner(System.in);
-        System.out.println("Please enter a z: '");
-        String z = s.nextLine();
-
-        System.out.println("Please enter a c: ");
-        String c = s.nextLine();
-        System.out.println("Please enter a t: ");
-        String t = s.nextLine();
-        System.out.println("Please enter the password: ");
-        String pw = s.nextLine();
+        if(endcodedFile==null){
+            System.out.println("You need to encrypt a file first!");
+            return;
+        }
+        try (Scanner s = new Scanner(System.in)) {
+            System.out.println("Please enter the password: ");
+            String pw = s.nextLine();
 
 
-        String keka = k.KMACJOB(z + pw, "", "S", 1024 / 4);
-        String ke = keka.substring(0, keka.length() / 2);
-        String ka = keka.substring(keka.length() / 2);
+            String keka = k.KMACJOB(endcodedFile[0] + pw, "", "S", 1024 / 4);
+            String ke = keka.substring(0, keka.length() / 2);
+            String ka = keka.substring(keka.length() / 2);
 
-        String m = utils.XORhex(k.KMACJOB(ke, "", "SKE", c.length()), c);
-        String tPrime = k.KMACJOB(ka, m, "SKA", 512 / 4);
+            String m = utils.XORhex(k.KMACJOB(ke, "", "SKE", endcodedFile[1].length()), endcodedFile[1]);
+            String tPrime = k.KMACJOB(ka, m, "SKA", 512 / 2);
 
-        if (t == tPrime) {
-            System.out.println("Accepted Input");
-        } else {
-            System.out.println("Incorrect t != t'");
+            if (endcodedFile[2].equals(tPrime)) {
+                System.out.println("Accepted Input");
+            } else {
+                System.out.println("Incorrect t != t'");
+            }
         }
     }
 
@@ -193,9 +185,3 @@ class Main {
         return theString;
     }
 }
-
-//kmacxof
-//Total input
-//01 88 02 01 00 40 41 42 43 44 45 46 47 48 49 4A4B 4C 4D 4E 4F 50 51 52 53 54 55 56 57 58 59 5A 5B 5C 5D 5E 5F 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00       00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00       00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00        00 00 00 00 00 00 00 0000 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F10 11 12 13 14 15 16 17 18 19 1A 1B 1C 1D 1E 1F20 21 22 23 24 25 26 27 28 29 2A 2B 2C 2D 2E 2F30 31 32 33 34 35 36 37 38 39 3A 3B 3C 3D 3E 3F40 41 42 43 44 45 46 47 48 49 4A 4B 4C 4D 4E 4F50 51 52 53 54 55 56 57 58 59 5A 5B 5C 5D 5E 5F60 61 62 63 64 65 66 67 68 69 6A 6B 6C 6D 6E 6F70 71 72 73 74 75 76 77 78 79 7A 7B 7C 7D 7E 7F80 81 82 83 84 85 86 87 88 89 8A 8B 8C 8D 8E 8F90 91 92 93 94 95 96 97 98 99 9A 9B 9C 9D 9E 9FA0 A1 A2 A3 A4 A5 A6 A7 A8 A9 AA AB AC AD AE AFB0B1B2B3B4B5B6B7B8B9BABBBCBDBEBFC0C1C2C3C4C5C6C70001
-//Bytepad
-//01 88 01 20 4B 4D 41 43 01 A8 4D 79 20 54 61 67        67 65 64 20 41 70 70 6C 69 63 61 74 69 6F 6E 00        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00        00 00 00 00 00 00 00 00

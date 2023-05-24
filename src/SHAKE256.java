@@ -8,63 +8,36 @@ class SHAKE256 {
         String input = "";
         String temp = "";
         String bytePad= "";
+        String output = "";
+
+        int finalSize = L;
 
         bytePad = utils.keccakInput(N, S, 136);
-
-
-        //utils.printHex(X);
-        utils.printHex(bytePad);
-
-
         long[] state = utils.hexToLong(bytePad);
+
         state = keccak.sha3_keccakf(state);
-        utils.printHex(utils.longToHex(state));
 
         while(X.length()-272 > 0){
             input = X.substring(0,272);
             X = X.substring(272);
-            System.out.println("input below");
-            utils.printHex(input);
             temp = utils.XORhex(input,utils.longToHex(state));
-            System.out.println("-----------xor-------------");
-            utils.printHex(temp);
-            System.out.println("------------------------");
             state = keccak.sha3_keccakf(utils.hexToLong(temp));
-            utils.printHex(utils.longToHex(state));
-
         }
 
         input = X;
-        System.out.println("input below");
-        utils.printHex(padInput(input));
-        temp = utils.XORhex(padInput(input),utils.longToHex(state));
+        temp = utils.XORhex(utils.padInput(input),utils.longToHex(state));
         state = keccak.sha3_keccakf(utils.hexToLong(temp));
-        utils.printHex(utils.longToHex(state));
 
-        utils.printHex(utils.longToHex(state));
-        int finalSize = L;
-        String output = "";
         while(finalSize-272 > 0){
-
             finalSize-=272;
             output += utils.longToHex(state).substring(0,272);
             state = keccak.sha3_keccakf(state);
         }
+
         output += utils.longToHex(state).substring(0,L/2);
 
         return output;
 
     }
-    public static String padInput(String text) {
 
-        if (text.length() > 272) {
-            return text;
-        }
-        String paded = text + "04";
-        while (paded.length() < 270) {
-            paded += "00";
-        }
-        return paded + "80";
-
-    }
 }

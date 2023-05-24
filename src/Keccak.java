@@ -1,4 +1,9 @@
 
+// Implementation heavily based off the C implementation here : https://github.com/mjosaarinen/tiny_sha3/blob/master/sha3.c
+
+// Appended to Java by Authors: Patrick Tibbals and Ian McLean
+
+
 public class Keccak {
     static Utils u = new Utils();
     final long[] RC = {

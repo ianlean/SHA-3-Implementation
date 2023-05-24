@@ -4,7 +4,6 @@
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
-import java.util.regex.Pattern;
 
 public class Utils {
 
@@ -15,9 +14,9 @@ public class Utils {
         String z = left_encode((hex.length()/2)*8)+hex;
         String y = left_encode((hex1.length()/2)*8)+hex1;
         String output = bytepad(y+z,w);
-
         return output;
     }
+
     long[] hexToLong(String hex){
         long[] L = new long[25];
         Arrays.fill(L,0x000000000L);
@@ -29,6 +28,18 @@ public class Utils {
         return L;
     }
 
+    String padInput(String text) {
+
+        if (text.length() > 272) {
+            return text;
+        }
+        String paded = text + "04";
+        while (paded.length() < 270) {
+            paded += "00";
+        }
+        return paded + "80";
+
+    }
 
     String byteArrToHex(byte[] bytes){
         String out = "";
@@ -54,8 +65,6 @@ public class Utils {
 
         return hex;
     }
-
-
 
     String textToHexString(String text){
         StringBuffer hex = new StringBuffer();
@@ -132,11 +141,9 @@ public class Utils {
         String[] encoded = intToHex(X);
         return encoded[0]+encoded[1];
     }
-    // 0
     String left_encode(int X){
-        System.out.println(X);
         String[] encoded = intToHex(X);
-        return new thing().binaryToHex(new thing().left_encode(X)).replaceAll("\\s","");
+        return encoded[1]+encoded[0];
     }
 
     String XORhex(String hex1, String hex2){
@@ -174,6 +181,15 @@ public class Utils {
 
         return xord;
     }
+    String bytesToHex(byte[] bytes) {
+        StringBuilder sb = new StringBuilder();
+        for (byte b : bytes) {
+            sb.append(String.format("%02x", b));
+        }
+
+        return sb.toString();
+    }
+
     String appendHex(String hex){
         if(hex.length()%2 != 0){
             hex += "0";
