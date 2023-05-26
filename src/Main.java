@@ -1,5 +1,6 @@
 import java.io.File;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.nio.file.Files;
 import java.security.SecureRandom;
 import java.util.Scanner;
@@ -19,9 +20,10 @@ class Main {
     static boolean run = true;
     public static void main(String[] args) {
 
-        while (run) {
-            menuPrompt(new Scanner(System.in));
-        }
+         EllipticCurve ec = new EllipticCurve();
+//        while (run) {
+//            menuPrompt(new Scanner(System.in));
+//        }
 
 
 
