@@ -21,6 +21,8 @@ class Main {
     public static void main(String[] args) {
 
          EllipticCurve ec = new EllipticCurve();
+         ec.printG();
+         System.out.println(ec.multScalar(BigInteger.ZERO, ec.G));
 //        while (run) {
 //            menuPrompt(new Scanner(System.in));
 //        }
