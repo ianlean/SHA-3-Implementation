@@ -1,7 +1,9 @@
 import java.awt.*;
 import java.math.BigInteger;
 import java.security.KeyPair;
+import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 public class EllipticCurve {
     private Utils utils = new Utils();
@@ -13,7 +15,7 @@ public class EllipticCurve {
     //private static BigInteger p = new BigInteger("181709681073901722637330951972001133588410340171829515070372549795146003961539585716195755291692375963310293709091662304773755859649779");
     //static BigInteger p = (BigInteger.valueOf(2).pow(446).subtract(BigInteger.valueOf(2).pow(224))).subtract(BigInteger.ONE);
     static BigInteger p = (BigInteger.TWO.pow(448).subtract(BigInteger.TWO.pow(224))).subtract(BigInteger.ONE);
-    private EdwardsPoint V = new EdwardsPoint();
+    static EdwardsPoint V = new EdwardsPoint();
     private static BigInteger n = r.multiply(new BigInteger("4"));
     EdwardsPoint G = new EdwardsPoint();
     private ArrayList keyPair = new ArrayList();
@@ -27,14 +29,16 @@ public class EllipticCurve {
         // s = kmac(pw, "", 512, "SK")
         String str = k.KMACJOB( utils.textToHexString(password), "", "SK", 1024 / 4);
         //s  = 4s
-        s = new BigInteger(str, 16).multiply(new BigInteger("4"));
-        //BigInteger s = BigInteger.valueOf(4).multiply(new BigInteger(intermediate)); // private key
+        s = new BigInteger(str, 16).multiply(new BigInteger("4")); //private key
         V = multScalar(s,G);
         keyPair.add(s);
         keyPair.add(V);
+        System.out.println(s);
+        System.out.println(V);
 
         return keyPair;
     }
+
     /**
      * Compute a square root of v mod p with a specified
      * least significant bit, if such a root exists.
@@ -58,7 +62,7 @@ public class EllipticCurve {
     }
 
 
-    public EdwardsPoint multScalar(BigInteger k, EdwardsPoint P){
+    public static EdwardsPoint multScalar(BigInteger k, EdwardsPoint P){
         // s = (sk sk-1 ... s1 s0)2, sk = 1.
         V = P; // initialize with sk*P, which is simply P
         String bin = k.toString(2);
@@ -71,14 +75,14 @@ public class EllipticCurve {
         return V; // now finally V = s*P
     }
 
-    public EdwardsPoint sumPoints(EdwardsPoint v,EdwardsPoint p) {
+    public static EdwardsPoint sumPoints(EdwardsPoint v, EdwardsPoint p) {
         BigInteger numeratorX = (v.getX().multiply(p.getY())).add(v.getY().multiply(p.getX()));
         BigInteger denominatorX = (BigInteger.ONE.add(d.multiply(v.getX()).multiply(p.getX()).multiply(v.getY()).multiply(p.getY())));
-        BigInteger X =numeratorX.multiply(denominatorX.modInverse(this.p)).mod(this.p);
+        BigInteger X =numeratorX.multiply(denominatorX.modInverse(EllipticCurve.p)).mod(EllipticCurve.p);
 
         BigInteger numeratorY = (v.getY().multiply(p.getY())).subtract(v.getX().multiply(p.getX()));
         BigInteger denominatorY = (BigInteger.ONE.subtract(d.multiply(v.getX()).multiply(p.getX()).multiply(v.getY()).multiply(p.getY())));
-        BigInteger Y = numeratorY.multiply(denominatorY.modInverse(this.p)).mod(this.p);
+        BigInteger Y = numeratorY.multiply(denominatorY.modInverse(EllipticCurve.p)).mod(EllipticCurve.p);
 
         return new EdwardsPoint(X,Y);
     }

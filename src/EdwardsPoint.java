@@ -11,10 +11,10 @@ public class EdwardsPoint {
 
         //𝑦 = ±√(1 − 𝑥2)/(1 + 376014𝑥2) mod 𝑝
         BigInteger x2 = x.modPow(new BigInteger("2"),  EllipticCurve.p);
-        BigInteger part1 = BigInteger.ONE.subtract(x2);
-        BigInteger part2 = BigInteger.ONE.add(d.multiply(BigInteger.valueOf(-1))
+        BigInteger numerator = BigInteger.ONE.subtract(x2);
+        BigInteger denominator = BigInteger.ONE.add(d.multiply(BigInteger.valueOf(-1))
                 .multiply(x2).mod( EllipticCurve.p));
-        this.y = EllipticCurve.sqrt(part1.multiply(part2.modInverse(EllipticCurve.p)),
+        this.y = EllipticCurve.sqrt(numerator.multiply(denominator.modInverse(EllipticCurve.p)),
                 EllipticCurve.p, leastSignificantBit);
     }
     public EdwardsPoint() {
