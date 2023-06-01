@@ -1,9 +1,15 @@
 //Authors:   Patrick Tibbals, Iam McLean
 
 
+import java.io.File;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.Arrays;
+import java.util.HexFormat;
+import java.util.Scanner;
 
 public class Utils {
 
@@ -64,6 +70,11 @@ public class Utils {
         }
 
         return hex;
+    }
+
+    String hextoString(String hex){
+        byte[] bytes = HexFormat.of().parseHex(hex);
+        return new String(bytes, StandardCharsets.UTF_8 );
     }
 
     String textToHexString(String text){
@@ -181,7 +192,8 @@ public class Utils {
 
         return xord;
     }
-    String bytesToHex(byte[] bytes) {
+
+    public static String bytesToHex(byte[] bytes) {
         StringBuilder sb = new StringBuilder();
         for (byte b : bytes) {
             sb.append(String.format("%02x", b));
@@ -189,12 +201,38 @@ public class Utils {
 
         return sb.toString();
     }
-
     String appendHex(String hex){
         if(hex.length()%2 != 0){
             hex += "0";
         }
         return hex;
     }
+
+    public static String gettingFileInfo(Scanner s) {
+        boolean done = false;
+        String theString = null;
+        int count  = 0 ;
+        while (!done) {
+            System.out.println("Please enter the full path of the file:");
+            File f = new File(s.nextLine());
+
+            if (f.exists()) {
+                try {
+                    theString = new String(Files.readAllBytes(f.getAbsoluteFile().toPath()));
+                    done = true;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else { //spaghetti code is fun
+                if(count >0) {
+                    System.out.println("ERROR: File doesn't exist. try again: ");
+                }else {
+                    count++;
+                }
+            }
+        }
+        return theString;
+    }
+
 
 }

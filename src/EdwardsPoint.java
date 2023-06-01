@@ -1,6 +1,7 @@
+import java.io.Serializable;
 import java.math.BigInteger;
 
-public class EdwardsPoint {
+public class EdwardsPoint implements Serializable  {
     private BigInteger x = BigInteger.ZERO;
     private BigInteger y = BigInteger.ZERO;
 
@@ -53,8 +54,10 @@ public class EdwardsPoint {
                 .mod(EllipticCurve.p);
         return new EdwardsPoint(newX, newY);
     }
+
+
     @Override
     public String toString() {
-        return this.x + ", " + this.y;
+        return "x -> " + this.x + "\n" + "y -> " + this.y;
     }
 }
