@@ -236,7 +236,6 @@ public class ecc {
         int choice = 0;
         while(choice != 1 && choice != 2){
             choice = scanner.nextInt();
-
         }
         String m = "";
         if(choice == 1){
@@ -245,7 +244,6 @@ public class ecc {
             text = scanner.nextLine();
             m = utils.textToHexString(text);
         }else{
-
             m = utils.textToHexString(utils.gettingFileInfo(scanner));
         }
 
@@ -278,20 +276,20 @@ public class ecc {
 
     private static void verifySign() {
         Scanner scanner = new Scanner(System.in);
-        EdwardsPoint V = null;
+        //EdwardsPoint V = null;
         EdwardsPoint signature = null;
 
-        while (V == null){
-            System.out.println("Enter the file with the public key:");
-            try {
-                FileInputStream fileInputStream = new FileInputStream(scanner.nextLine());
-                ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
-                V = (EdwardsPoint) objectInputStream.readObject();
-            } catch (IOException |ClassNotFoundException e) {
-                e.printStackTrace();
-                System.out.println("Invalid file location");
-            }
-        }
+//        while (V == null){
+//            System.out.println("Enter the file with the public key:");
+//            try {
+//                FileInputStream fileInputStream = new FileInputStream(scanner.nextLine());
+//                ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
+//                V = (EdwardsPoint) objectInputStream.readObject();
+//            } catch (IOException |ClassNotFoundException e) {
+//                e.printStackTrace();
+//                System.out.println("Invalid file location");
+//            }
+//        }
 
         String m;
         System.out.println("Enter the file text you want signature verified");
