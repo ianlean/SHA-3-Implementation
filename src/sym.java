@@ -1,6 +1,4 @@
-import java.math.BigInteger;
 import java.security.SecureRandom;
-import java.util.ArrayList;
 import java.util.Scanner;
 
 public class sym {

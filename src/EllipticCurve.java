@@ -1,10 +1,6 @@
-import java.awt.*;
 import java.io.Serializable;
 import java.math.BigInteger;
-import java.security.KeyPair;
-import java.security.SecureRandom;
 import java.util.ArrayList;
-import java.util.Scanner;
 
 public class EllipticCurve implements Serializable {
     private Utils utils = new Utils();
@@ -24,12 +20,12 @@ public class EllipticCurve implements Serializable {
 
     public ArrayList getKeyPair(String password) {
         KMACXOF256 k = new KMACXOF256();
-        // s = kmac(pw, "", 512, "SK")
-        System.out.println("First"+  utils.textToHexString(password));
+  
         String str = k.KMACJOB( utils.textToHexString(password), "", "SK", 1024 / 4);
-        //s  = 4s
+
         s = new BigInteger(str, 16).multiply(new BigInteger("4")); //private key
         V = multScalar(s,G);
+
         keyPair.add(s);
         keyPair.add(V);
 
@@ -58,19 +54,26 @@ public class EllipticCurve implements Serializable {
         return (r.multiply(r).subtract(v).mod(p).signum() == 0) ? r : null;
     }
 
+    public static EdwardsPoint multScalar(BigInteger s, EdwardsPoint G){
 
-    public static EdwardsPoint multScalar(BigInteger k, EdwardsPoint P){
-        // s = (sk sk-1 ... s1 s0)2, sk = 1.
-        EdwardsPoint B = new EdwardsPoint(); // initialize with sk*P, which is simply P
-        String bin = k.toString(2);
-        for (int i = bin.length() - 1; i >= 0; i--) {
-            B = sumPoints(B,B);
-            if (bin.charAt(i) == '1'){
-//                System.out.println("yo");
-                B = sumPoints(B,P);
+        if (s.equals(BigInteger.ZERO)) {return new EdwardsPoint();}
+
+        if (s.signum() == -1) {
+            s = s.negate();
+            G = EllipticCurve.obtain0pposite(G);
+        }
+
+        String binaryS = s.toString(2);
+        EdwardsPoint P = G;
+        if (binaryS.length() == 1) return P;
+        for (int i = 1; i < binaryS.length(); i++) {
+            P = sumPoints(P,P);
+            if (binaryS.charAt(i) == '1') {
+                P = sumPoints(P,G);
             }
         }
-        return B; // now finally V = s*P
+        return P;
+
     }
 
     public static EdwardsPoint sumPoints(EdwardsPoint p1, EdwardsPoint p2) {
@@ -84,15 +87,6 @@ public class EllipticCurve implements Serializable {
 
         return new EdwardsPoint(X,Y);
     }
-    public void neutralElement() {
-
-    }
-    public void curvePoint(BigInteger x, BigInteger y) {
-
-    }
-    void comparePoints() {
-
-    }
 
     static EdwardsPoint obtain0pposite(EdwardsPoint P) {
         P.setX(P.getX().multiply(BigInteger.valueOf(-1)));
@@ -102,6 +96,4 @@ public class EllipticCurve implements Serializable {
     void printG() {
         System.out.println(this.G);
     }
-
-
 }
