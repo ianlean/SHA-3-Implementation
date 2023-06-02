@@ -16,26 +16,51 @@ class Main {
 
     static boolean run = true;
     static boolean mainMenu = true;
+    public static EdwardsPoint sumPoints(EdwardsPoint p1, EdwardsPoint p2) {
+        BigInteger numeratorX = (p1.getX().multiply(p2.getY())).add(p1.getY().multiply(p2.getX()));
+        BigInteger denominatorX = (BigInteger.ONE.add(EllipticCurve.d.multiply(p1.getX()).multiply(p2.getX()).multiply(p1.getY()).multiply(p2.getY())));
+        BigInteger X =numeratorX.multiply(denominatorX.modInverse(EllipticCurve.p));
 
+        BigInteger numeratorY = (p1.getY().multiply(p2.getY())).subtract(p1.getX().multiply(p2.getX()));
+        BigInteger denominatorY = (BigInteger.ONE.subtract(EllipticCurve.d.multiply(p1.getX()).multiply(p2.getX()).multiply(p1.getY()).multiply(p2.getY())));
+        BigInteger Y = numeratorY.multiply(denominatorY.modInverse(EllipticCurve.p));
+
+        return new EdwardsPoint(X,Y);
+    }
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-
-        while (mainMenu) {
-            int choice = 0;
-
-            while(choice != 1 && choice !=2 && choice !=3) {
-                System.out.println("Enter choice:\n 1 - Symmetric Cryptography\n 2 - Elliptic Cryptography\n 3 - Exit");
-                choice = insureValidity(scanner);
-            }
-            if(choice == 1){
-                sym.menuPrompt(scanner);
-            }else if (choice == 2){
-                ecc.menuPrompt(scanner);
-            } else if (choice == 3){
-                System.out.println("bye bye");
-                System.exit(1);
+        new EllipticCurve();
+        BigInteger k = BigInteger.TWO;
+        EdwardsPoint P = EllipticCurve.G;
+        EdwardsPoint B = P; // initialize with sk*P, which is simply P
+        String bin = k.toString(2);
+        for (int i = bin.length() - 1; i >= 0; i--) {
+            B = sumPoints(B,B);
+            if (bin.charAt(i) == '1'){
+                B = sumPoints(B,P);
             }
         }
+        System.out.println("Current: ");
+        System.out.println(EllipticCurve.multScalar(k, P));
+        System.out.println("New: ");
+        System.out.println(B);
+        // Scanner scanner = new Scanner(System.in);
+
+        // while (mainMenu) {
+        //     int choice = 0;
+
+        //     while(choice != 1 && choice !=2 && choice !=3) {
+        //         System.out.println("Enter choice:\n 1 - Symmetric Cryptography\n 2 - Elliptic Cryptography\n 3 - Exit");
+        //         choice = insureValidity(scanner);
+        //     }
+        //     if(choice == 1){
+        //         sym.menuPrompt(scanner);
+        //     }else if (choice == 2){
+        //         ecc.menuPrompt(scanner);
+        //     } else if (choice == 3){
+        //         System.out.println("bye bye");
+        //         System.exit(1);
+        //     }
+        // }
     }
     public static int insureValidity(Scanner scanner) {
         while(!scanner.hasNextInt()) {

@@ -29,7 +29,9 @@ public class ecc {
                         E) Verify file and signature
                         F) EXIT
                     """);
-            choice = s.nextLine();
+            while(choice==null){
+                choice = s.next();
+            }
             switch (choice.toLowerCase()) {
                 case "a":
                     generateKeyPair();
@@ -52,6 +54,7 @@ public class ecc {
                     return;
                 default:
                     System.out.println("That is not a service try again");
+                    choice = null;
             }
         }
     }
@@ -89,6 +92,7 @@ public class ecc {
         } catch (RuntimeException | IOException e) {
             e.printStackTrace();
         }
+        System.out.println("V "+EC.V);
     }
 
 
@@ -229,13 +233,37 @@ public class ecc {
         System.out.println("W = "+W);
         encodedECCFile = null;
     }
+
+
     static EdwardsPoint U ;
+
+    
     private static void signFile(){
-        Scanner scanner = new Scanner(System.in);
+                Scanner scanner = new Scanner(System.in);
+
+        EdwardsPoint V = null;
+        EdwardsPoint signature = null;
+
+       while (V == null){
+           System.out.println("Enter the file with the public key:");
+           try {
+               FileInputStream fileInputStream = new FileInputStream(scanner.nextLine());
+               ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
+               V = (EdwardsPoint) objectInputStream.readObject();
+           } catch (IOException |ClassNotFoundException e) {
+               e.printStackTrace();
+               System.out.println("Invalid file location");
+           }
+       }
+
+
         System.out.println("Enter 1 to input custom text or 2 for file loading");
         int choice = 0;
         while(choice != 1 && choice != 2){
             choice = scanner.nextInt();
+            if(choice != 1 && choice != 2){
+                System.out.println("Try valid inputs 1 or 2");
+            }
         }
         String m = "";
         if(choice == 1){
@@ -244,20 +272,28 @@ public class ecc {
             text = scanner.nextLine();
             m = utils.textToHexString(text);
         }else{
-            m = utils.textToHexString(utils.gettingFileInfo(scanner));
+            m = utils.textToHexString(utils.gettingFileInfo( new Scanner(System.in)));
         }
+        System.out.println("Step 1   " + m);
+
 
         System.out.println("Enter passphrase");
         String pw = scanner.nextLine();
-
+        pw = scanner.nextLine();
         String str = k.KMACJOB(utils.textToHexString(pw), "", "SK", 1024 / 4);
         BigInteger s = new BigInteger(str, 16).multiply(new BigInteger("4"));
-        String str1 = k.KMACJOB(s.toString(16), utils.hextoString(m), "N", 1024 / 4);
+        String str1 = k.KMACJOB(s.toString(16), m, "N", 1024 / 4);
         BigInteger kNum = new BigInteger(str1, 16).multiply(new BigInteger("4")); // this is 'k' in the documentation
         U = EC.multScalar(kNum,EC.G);
 
+        System.out.println("Step 2   " + m);
+
         String h = k.KMACJOB(String.valueOf(U.getX()), m, "T", 1024 / 4);
+        System.out.println("h ===="+ new BigInteger(h,16));
         BigInteger z = (kNum.subtract(new BigInteger(h,16).multiply(s))).mod(EC.r);
+        System.out.println("z ===="+z);
+
+        System.out.println(EC.multScalar(z, EC.G));
         FileOutputStream ZCTout = null;
         ObjectOutputStream objectOut = null;
         try {
@@ -268,32 +304,33 @@ public class ecc {
         } catch (RuntimeException | IOException e) {
             e.printStackTrace();
         }
-        System.out.println("h = "+h);
-        System.out.println("z = "+z);
+
+
         System.out.println("U = "+U);
 
     }
 
     private static void verifySign() {
         Scanner scanner = new Scanner(System.in);
-        //EdwardsPoint V = null;
+        EdwardsPoint V = null;
         EdwardsPoint signature = null;
 
-//        while (V == null){
-//            System.out.println("Enter the file with the public key:");
-//            try {
-//                FileInputStream fileInputStream = new FileInputStream(scanner.nextLine());
-//                ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
-//                V = (EdwardsPoint) objectInputStream.readObject();
-//            } catch (IOException |ClassNotFoundException e) {
-//                e.printStackTrace();
-//                System.out.println("Invalid file location");
-//            }
-//        }
+       while (V == null){
+           System.out.println("Enter the file with the public key:");
+           try {
+               FileInputStream fileInputStream = new FileInputStream(scanner.nextLine());
+               ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
+               V = (EdwardsPoint) objectInputStream.readObject();
+           } catch (IOException |ClassNotFoundException e) {
+               e.printStackTrace();
+               System.out.println("Invalid file location");
+           }
+       }
 
         String m;
         System.out.println("Enter the file text you want signature verified");
-        m = utils.textToHexString(utils.gettingFileInfo(scanner));
+        m = utils.textToHexString(utils.gettingFileInfo(new Scanner(System.in)));
+        System.out.println("Step 3    " + m);
 
         while (signature == null){
             System.out.println("Enter the file with the signature:");
@@ -307,17 +344,37 @@ public class ecc {
             }
         }
         BigInteger z = signature.getY();
-        BigInteger h = signature.getX();
-        //U = EC.sumPoints(EC.multScalar(z, EC.G),EC.multScalar(h, V));
-        //src/signtext.txt hi src/signature.txt hi.txt src/signtext.txt src/signature.txt
 
-        if (new BigInteger(k.KMACJOB(String.valueOf(U.getX()),m,"T",1024/4),16).equals(h)) {
-            System.out.println("Accepted Input");
+        BigInteger h = signature.getX();
+        System.out.println("h ===="+h);
+        System.out.println("z ===="+z);
+
+        // System.out.println("h = "+h.toString(16));
+
+        // System.out.println("z = "+z);
+        // System.out.println("G = "+EC.G);
+
+        EdwardsPoint p = EllipticCurve.multScalar(z, EC.G);
+        System.out.println(p);
+        EdwardsPoint p1 = EllipticCurve.multScalar(h,V);
+
+        EdwardsPoint finalU = EllipticCurve.sumPoints(p,p1);
+        //src/signtext.txt hi src/signature.txt hi.txt src/signtext.txt src/signature.txt
+        // System.out.println("G = "+EC.G);
+        // System.out.println("V = "+V);
+
+        System.out.println("U = "+finalU);
+        System.out.println("STring x"+String.valueOf(finalU.getX()));
+        System.out.println("hex x"+ (finalU.getX().toString(16)));
+        System.out.println("h ===="+h);
+
+        System.out.println("Step 4    " + m);
+
+        if (new BigInteger(k.KMACJOB(String.valueOf(finalU.getX()),m,"T",1024/4),16).equals(h)) {
+            System.out.println("Verified: Correct Signature");
         } else {
             System.out.println("Incorrect Signature");
         }
-        System.out.println("h = "+h.toString(16));
-        System.out.println("z = "+z);
-        System.out.println("U = "+U);
+
     }
 }

@@ -9,13 +9,13 @@ import java.util.Scanner;
 public class EllipticCurve implements Serializable {
     private Utils utils = new Utils();
     static BigInteger r = BigInteger.TWO.pow(446).subtract(new BigInteger("13818066809895115352007386748515426880336692474882178609894547503885"));
-    private static BigInteger d = new BigInteger("39081").negate();
+    static BigInteger d = new BigInteger("39081").negate();
     static BigInteger s;
 
     static BigInteger p = (BigInteger.TWO.pow(448).subtract(BigInteger.TWO.pow(224))).subtract(BigInteger.ONE);
     static EdwardsPoint V;
-    private static BigInteger n = r.multiply(new BigInteger("4"));
-    EdwardsPoint G = new EdwardsPoint();
+    static BigInteger n = r.multiply(new BigInteger("4"));
+    static EdwardsPoint G = new EdwardsPoint();
     private ArrayList keyPair = new ArrayList();
 
     public EllipticCurve() {
