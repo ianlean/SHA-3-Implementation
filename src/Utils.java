@@ -214,7 +214,7 @@ public class Utils {
         int count  = 0 ;
         while (!done) {
             System.out.println("Please enter the full path of the file:");
-            s.nextLine();
+            
             File f = new File(s.nextLine());
 
             if (f.exists()) {

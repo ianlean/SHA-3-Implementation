@@ -252,6 +252,16 @@ public class ecc {
             String text = scanner.nextLine();
             text = scanner.nextLine();
             m = utils.textToHexString(text);
+            try {
+                System.out.println("Enter Desired Text file name: ");
+                FileWriter myWriter = new FileWriter(scanner.nextLine());
+                myWriter.write(text);
+                myWriter.close();
+
+              } catch (IOException e) {
+                System.out.println("An error occurred");
+                e.printStackTrace();
+              }
         }else{
             m = utils.textToHexString(utils.gettingFileInfo( new Scanner(System.in)));
         }
@@ -259,7 +269,7 @@ public class ecc {
 
         System.out.println("Enter passphrase");
         String pw = scanner.nextLine();
-        pw = scanner.nextLine();
+        
         String str = k.KMACJOB(utils.textToHexString(pw), "", "SK", 1024 / 4);
         BigInteger s = new BigInteger(str, 16).multiply(new BigInteger("4"));
         String str1 = k.KMACJOB(s.toString(16), m, "N", 1024 / 4);
@@ -301,6 +311,7 @@ public class ecc {
 
         String m;
         System.out.println("Enter the file text you want signature verified");
+        
         m = utils.textToHexString(utils.gettingFileInfo(new Scanner(System.in)));
 
         while (signature == null){
