@@ -38,3 +38,6 @@ The menu will provide two initial options:
                 * Same text used for signing
             - Enter the file path with the signature:
             - Verified: Correct Signature or Incorrect Signature
+
+Before any of the other asymmetric functions can be used you must generate a key pair (obviously).
+So make sure to run A first.
